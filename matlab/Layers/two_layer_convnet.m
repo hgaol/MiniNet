@@ -41,7 +41,7 @@ end
 % % model.conv_param.pad = 1; model.conv_param.stride = 1;y = randint(100,1,[1,10]);
 % % model.pool_param.stride = 2;model.pool_param.width = 2; model.pool_param.height = 2;
 % [a1, cache1] = conv_relu_pool_forward(X, model.W1, model.b1, model.conv_param, model.pool_param);
-% [scores, cache2] = AffineForward(a1, model.W2, model.b2);
+% [scores, cache2] = AffineForward(X, model.W2, model.b2);
 % [data_loss, dscores] = SoftmaxLossLayer(scores, y);
 
 % test affine layer

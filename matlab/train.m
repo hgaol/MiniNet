@@ -15,11 +15,11 @@ function [best_model, loss_history, train_acc_history, val_acc_history]...\
 % [best_model, loss_history, train_acc_history, val_acc_history] = train(X, y, X, y, model, @two_layer_convnet);
 
 % Test for correct
-% X = rand(100,3,4,4);model.W1 = 1e-3 * random('norm',0,1,[5,3,3,3]);model.b1 = zeros(5,1);
+% X = rand(100,3,4,4);model.W1 = 1e-3 * random('norm',0,1,[5,1,3,3]);model.b1 = zeros(5,1);
 % model.W2 = 1e-3 * random('norm',0,1,[10,5,2,2]);model.b2 = zeros(10,1);
 % model.conv_param.pad = 1; model.conv_param.stride = 1;y = randint(100,1,[1,10]);
 % model.pool_param.stride = 2;model.pool_param.width = 2; model.pool_param.height = 2;
-% [best_model, loss_history, train_acc_history, val_acc_history] = train(X, y, X, y, model, @Layers.two_layer_convnet,0,0.015,1,0.95,1000);
+% [best_model, loss_history, train_acc_history, val_acc_history] = train(X, y, X, y, model, @two_layer_convnet,0,0.015,1,0.95,1000);
 
 %% argin
 if nargin < 15
@@ -68,21 +68,24 @@ best_model = model;
 loss_history = [];
 train_acc_history = [];
 val_acc_history = [];
+step_cache = struct;
+
 % TODO，将X，y随机化
 for it = 1:num_iters
-    if mod(it, 10) == 0
-        fprintf('starting iteration %d\n', it);
-    end
+%     if mod(it, 10) == 0
+%         fprintf('starting iteration %d\n', it);
+%     end
     
     % 这里随机？顺序选取？还是选之前先打乱，然后顺序吧
     if sample_batches
 %         X_batch = X(mod((it-1)*batch_size+1,N+1): mod(it*batch_size,N+1), :, :, :);
-        X_batch = X;
-        y_batch = y;
+        X_batch = X(1:10,:,:,:);
+        y_batch = y(1:10);
 %         y_batch = y((it-1)*batch_size+1:it*batch_size, :);
     end
     
     [loss, grads] = loss_function(X_batch, model, y_batch, reg);
+    fprintf('iter: %d\tloss: %d\n', it, loss);
     loss_history = [loss_history; loss];
     
     % updata
@@ -93,7 +96,10 @@ for it = 1:num_iters
         if strcmp(update, 'sgd')
             dx = -lr .* grads.(dname);
         elseif strcmp(update, 'momentum')
-            ;
+            if ~isfield(step_cache, dname)
+                step_cache.(dname) = zeros(size(grads.(dname)));
+            end
+            dx = momentum .* step_cache.(dname) - lr .* grads.(dname);
         elseif strcmp(update, 'rmsprop')
             ;
         else
@@ -116,6 +122,8 @@ for it = 1:num_iters
         % random pick 1000 or less samples to calc acc
         if N > 1000
             % TODO
+            X_train_subset = X(1:10,:,:,:);
+            y_train_subset = y(1:10);
         else
             X_train_subset = X;
             y_train_subset = y;

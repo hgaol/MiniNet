@@ -32,34 +32,34 @@ X = padarray(X, [pad, pad]);
 Hy = (Hx + pad * 2 - Hw) / conv_param.stride + 1;
 Wy = (Wx + pad * 2 - Ww) / conv_param.stride + 1;
 
-% [Hy, Wy, F, N]
-Y = zeros([Hy, Wy, F, N]);
-% conv
-for i = 1:N
-    for f = 1:F
-        conv_ans = zeros([Hy, Wy]);
-        for c = 1:C
-            conv_ans = conv_ans + conv2(X(:,:,c,i), W(:,:,c,f), 'valid');
-        end
-        Y(:,:,f,i) = conv_ans + b(f, 1);
-    end
-end
-% [N, C, Hy, Wy]
-Y = permute(Y, [4, 3, 1, 2]);
-
-% pad_a = pad * 2 + 1;
-% Y = zeros([N, F, Hy, Wy]);
+% % [Hy, Wy, F, N]
+% Y = zeros([Hy, Wy, F, N]);
+% % conv
 % for i = 1:N
 %     for f = 1:F
-%         for hy = 1:Hy
-%             for wy = 1:Wy
-%                 window = X(1+(hy-1)*conv_param.stride:pad_a+(hy-1)*conv_param.stride,...\
-%                                     1+(wy-1)*conv_param.stride:pad_a+(wy-1)*conv_param.stride, :, i);
-%                 Y(i,f,hy,wy) = sum(sum(sum((window .* W(:,:,:,f))))) + b(f);
-%             end
+%         conv_ans = zeros([Hy, Wy]);
+%         for c = 1:C
+%             conv_ans = conv_ans + conv2(X(:,:,c,i), W(:,:,c,f), 'valid');
 %         end
+%         Y(:,:,f,i) = conv_ans + b(f, 1);
 %     end
 % end
+% % [N, C, Hy, Wy]
+% Y = permute(Y, [4, 3, 1, 2]);
+
+pad_a = pad * 2 + 1;
+Y = zeros([N, F, Hy, Wy]);
+for i = 1:N
+    for f = 1:F
+        for hy = 1:Hy
+            for wy = 1:Wy
+                window = X(1+(hy-1)*conv_param.stride:pad_a+(hy-1)*conv_param.stride,...\
+                                    1+(wy-1)*conv_param.stride:pad_a+(wy-1)*conv_param.stride, :, i);
+                Y(i,f,hy,wy) = sum(sum(sum((window .* W(:,:,:,f))))) + b(f);
+            end
+        end
+    end
+end
 % 
 % testY = permute(Y, [3,4,2,1]);
 end
