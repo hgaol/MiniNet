@@ -29,14 +29,14 @@ function [ loss, grads ] = two_layer_convnet( X, model, y, reg, ret_type)
 if nargin == 2
     y = false;
     reg = 0;
-    ret_type = 'scores';
+    back = true;
 end
 if nargin == 3
     reg = 0;
-    ret_type = 'go_back';
+    back = true;
 end
 if nargin == 4
-    ret_type = 'go_back';
+    back = true;
 end
 
 %% Test code
@@ -58,14 +58,16 @@ end
 [a1, cache1] = conv_relu_pool_forward(X, model.W1, model.b1, model.conv_param, model.pool_param);
 [scores, cache2] = AffineForward(a1, model.W2, model.b2);
 
-if strcmp(ret_type, 'scores')
-    loss = scores;
-    return;
-end
 [data_loss, dscores] = SoftmaxLossLayer(scores, y);
-if strcmp(ret_type, 'loss')
-    loss = data_loss;
-    return;
+
+if y == false
+    if strcmp(ret_type, 'loss')
+        loss = data_loss;
+        return;
+    else
+        loss = scores;
+        return
+    end
 end
 
 %% Backward
