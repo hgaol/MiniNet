@@ -6,14 +6,17 @@ It is not big and powerful, but it also have some good features, such as concise
 
 see u latter, mini_net:)
 
+if you want to have a try, please goto Test directory and run `test_layers.m` or `over_fit_small_data.m`. 
+ Or goto Example/mnist directory and run `mnist_example.m`. have fun~
+
 ---
 
 TODO
 
 * ~~small data example~~
 
-* rmsprop update
+* ~~rmsprop, adagrad update~~
 
 * im2col
 
-* example
+* ~~mnist example~~
