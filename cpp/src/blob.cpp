@@ -2,30 +2,54 @@
 
 namespace mini_net {
 
+Blob* operator+(Blob& A, const int num) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] + num;
+	}
+	return pB;
+}
+Blob* operator+(const int num, Blob& A) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] + num;
+	}
+	return pB;
+}
+Blob* operator+(Blob& A, Blob& B) {
+	Blob *pC = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pC)[i] = A[i] + B[i];
+	}
+	return pC;
+}
 //---Blob---
-template<typename fill_type>
-Blob::Blob(const int n, const int c, const int h, const int w,
-		const fill::fill_class<fill_type>& ftype, const double eps):
+	
+Blob::Blob(const int n, const int c, const int h, const int w, int type) :
 		N_(n), C_(c), H_(h), W_(w) {
-	if (ftype == fill::none) {
-		data_ = new vector<cube>(N_, cube(H_, W_, C_, ftype));
-	}
-	else {
-		data_ = new vector<cube>(N_, cube(H_, W_, C_, ftype) * eps);
-	}
+	if (type == TNONE)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::none));
+	if (type == TONES)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::ones));
+	if (type == TZEROS)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
+	if (type == TRANDU)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randu));
+	if (type == TRANDN)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn));
 	return;
 }
-
-template<typename fill_type>
-Blob::Blob(const vector<int>& shape,
-		const fill::fill_class<fill_type>& ftype, const double eps) :
+Blob::Blob(const int n, const int c, const int h, const int w, const double eps):
+		N_(n), C_(c), H_(h), W_(w) {
+	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
+	return;
+}
+Blob::Blob(const vector<int>& shape) :
 		N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-	if (ftype == fill::none) {
-		data_ = new vector<cube>(N_, cube(H_, W_, C_, ftype));
-	}
-	else {
-		data_ = new vector<cube>(N_, cube(H_, W_, C_, ftype) * eps);
-	}
+	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::none));
+	return;
+}
+Blob::Blob(const vector<int>& shape, const double eps) :
+		N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
+	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
 	return;
 }
 
