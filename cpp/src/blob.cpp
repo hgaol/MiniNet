@@ -41,7 +41,7 @@ Blob* operator* (Blob& A, Blob& B) {
 	std::vector<int> shape_B = B.get_shape_vec();
 	for (int i = 0; i < 4; ++i) {
 		if (shape_A[i] != shape_B[i]) {
-			printf("Blob<Dtype> size should be equal!\n");
+			printf("Blob size should be equal!\n");
 			return NULL;
 		}
 	}
@@ -210,6 +210,15 @@ Blob* operator/ (Blob& A, Blob& B) {
 	return pdst;
 }
 
+double sum_blob_ith(Blob* A, int a, Blob* B, int b) {
+	int C = A->get_C();
+	double ret = 0;
+	for (int c = 0; c < C; ++c) {
+		ret += sum((*B)[b][c] + (*A)[a][c])[0];
+	}
+	return ret;
+}
+
 // -----------Blob space-------------
 
 Blob::Blob(const int n, const int c, const int h, const int w, const double val) :
@@ -230,7 +239,6 @@ Blob::~Blob() {
 	}
 	return;
 }
-
 
 vector<Mat>& Blob::operator[] (int i) {
 	return (*data_)[i];

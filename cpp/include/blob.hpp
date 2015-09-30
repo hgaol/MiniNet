@@ -38,6 +38,9 @@ Blob* operator/ (const double a, Blob& A);
 // to use blob_A * blob_B
 Blob* operator/ (Blob& A, Blob& B);
 
+// sum(A[a_th] + B[b_th])
+double sum_blob_ith(Blob* A, int a, Blob* B, int b);
+
 class Blob {
 
 public:
@@ -70,7 +73,6 @@ public:
 	// to use blob_A * blob_B
 	friend Blob* operator/ (const Blob& A, const Blob& B);
 	
-	// ------- overide operator ----------
 	// to use blob[i][j] operation
 	vector<Mat>& operator[] (int i);
 
@@ -78,10 +80,23 @@ public:
 	// return [N,C,H,W]
 	vector<int> get_shape_vec();
 
+	inline int get_N() {
+		return N_;
+	}
+	inline int get_C() {
+		return C_;
+	}
+	inline int get_H() {
+		return H_;
+	}
+	inline int get_W() {
+		return W_;
+	}
+
 	// return data_
 	vector<vector<Mat> >* get_data();
 
-	//@brief: reshape [N,C,H,W] to [N,C*H*W] 
+	//@brief: reshape [N,C,H,W] to [N,C*H*W], it will increase efficiency. [TODO]
 	Mat& reshape();
 
 private:
@@ -90,6 +105,15 @@ private:
 	int H_;
 	int W_;
 	vector<vector<Mat> > *data_;
+};
+
+// struct Param
+struct Param {
+	// conv param
+	int stride;
+	int pad;
+	int width;
+	int height;
 };
 
 } // namespace MiniNet

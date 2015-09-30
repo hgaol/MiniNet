@@ -1,25 +1,33 @@
-#include "layer.hpp"
+// #include "layer.hpp"
 
-using Eigen::MatrixXf;
+// namespace mini_net {
 
-namespace mini_net {
-
-	void AffineLayer::forward(const MatrixXf& x, const MatrixXf& w, MatrixXf& y) {
-		y = x * w;
-		return ;
-	}
-
-	void AffineLayer::backward(const Eigen::MatrixXf& dy, const Eigen::MatrixXf& x, const Eigen::MatrixXf& w,
-		Eigen::MatrixXf& dx, Eigen::MatrixXf& dw) {
-		dx = dy * w.transpose();
-		dw = x.transpose() * dy;
-		return ;
-	}
+// /**
+//  in:		[N, C, Hx, Wx]
+//  weight:	[F, C, Hw, Ww]
+//  bias:		[F, 1, 1, 1]
+//  out:		[N, F, 1, 1]
+//  */
+// void AffineLayer::forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL) {
+// 	if (out) {
+// 		delete out;
+// 	}
+// 	int N = in[0]->get_N();
+// 	int F = in[1]->get_N();
 	
-	void SoftmaxLossLayer::forward(const Eigen::MatrixXf& x, const Eigen::MatrixXf& w, Eigen::MatrixXf& y) {
+// 	out = new Blob(N, F, 1, 1);
+// 	for (int i = 0; i < N; ++i) {
+// 		double tmp = 0;
+// 		for (int f = 0; f < F; ++f) {
+// 			tmp += sum_blob_ith(in[0], i, in[1], f);
+// 		}
+		
+// 	}
+// }
+// void AffineLayer::backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL) {
 
-	}
+// }
 
-//TODO
+// //TODO
 
-} //namespace mini_net
+// } //namespace mini_net

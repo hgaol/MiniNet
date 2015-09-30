@@ -1,11 +1,16 @@
 #ifndef MINI_NET_LAYER_HPP_
 #define MINI_NET_LAYER_HPP_
 
-#include <Eigen/Dense>
+#include "blob.hpp"
+#include <opencv2/core/core.hpp>
 #include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
+
+using std::vector;
+using std::map;
+using cv::Mat;
 
 namespace mini_net {
 
@@ -16,8 +21,19 @@ class Layer {
 public:
 	explicit Layer() {}
 	virtual ~Layer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&> in, const std::vector<Eigen::MatrixXf&> out) = 0;
-	virtual void backward(const std::vector<const Eigen::MatrixXf&> in, const std::vector<Eigen::MatrixXf&> out) = 0;
+
+	//@brief forward
+	//@param[in]  const vector<Blob*>& in		in[0]:X, in[1]:weights, in[2]:bias 
+	//@param[out] Blob* out						Y 
+	//@param[in]  const Param* param			params		
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL) = 0;
+
+	//@brief backward
+	//@param[in]  const Blob* dout				dout, backpro value 
+	//@param[in]  const vector<Blob*>& cache 	just use vector<Blob*>& in when forward
+	//@param[out] vector<Blob*> grads			grads{X, weights, bias}	
+	//@param[in]  const Param* param			param
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL) = 0;
 };
 
 /**
@@ -27,8 +43,8 @@ class AffineLayer : public Layer {
 public:
 	explicit AffineLayer() {}
 	virtual ~AffineLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -38,8 +54,8 @@ class ReluLayer : public Layer {
 public:
 	explicit ReluLayer() {}
 	virtual ~ReluLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -49,8 +65,8 @@ class SoftmaxLossLayer : public Layer {
 public:
 	explicit SoftmaxLossLayer() {}
 	virtual ~SoftmaxLossLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -60,8 +76,8 @@ class SVMLossLayer : public Layer {
 public:
 	explicit SVMLossLayer() {}
 	virtual ~SVMLossLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -71,8 +87,8 @@ class ConvolutionLayer : public Layer {
 public:
 	explicit ConvolutionLayer(const std::vector<std::map<std::string, int> > param_in);
 	virtual ~ConvolutionLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -82,8 +98,8 @@ class PoolingLayer : public Layer {
 public:
 	explicit PoolingLayer(const std::vector<std::map<std::string, int> > param_in);
 	virtual ~PoolingLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 /**
@@ -93,8 +109,8 @@ class DropoutLayer : public Layer {
 public:
 	explicit DropoutLayer() {}
 	virtual ~DropoutLayer() {}
-	virtual void forward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
-	virtual void backward(const std::vector<const Eigen::MatrixXf&>& in, std::vector<Eigen::MatrixXf&>& out);
+	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 };
 
 } // namespace mini_net
