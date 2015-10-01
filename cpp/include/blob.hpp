@@ -17,9 +17,18 @@ enum FillType {
 	TRANDN = 4
 };
 class Blob;
-Blob* operator+(Blob& A, const int num);
-Blob* operator+(const int num, Blob& A);
+Blob* operator+(Blob& A, const double num);
+Blob* operator+(const double num, Blob& A);
 Blob* operator+(Blob& A, Blob& B);
+Blob* operator-(Blob& A, const double num);
+Blob* operator-(const double num, Blob& A);
+Blob* operator-(Blob& A, Blob& B);
+Blob* operator*(Blob& A, const double num);
+Blob* operator*(const double num, Blob& A);
+Blob* operator*(Blob& A, Blob& B);
+Blob* operator/(Blob& A, const double num);
+Blob* operator/(const double num, Blob& A);
+Blob* operator/(Blob& A, Blob& B);
 
 class Blob {
 
@@ -32,9 +41,18 @@ public:
 	~Blob();
 
 	cube& operator[] (int i);
-	friend Blob* operator+(Blob& A, const int num);
-	friend Blob* operator+(const int num, Blob& A);
+	friend Blob* operator+(Blob& A, const double num);
+	friend Blob* operator+(const double num, Blob& A);
 	friend Blob* operator+(Blob& A, Blob& B);
+	friend Blob* operator-(Blob& A, const double num);
+	friend Blob* operator-(const double num, Blob& A);
+	friend Blob* operator-(Blob& A, Blob& B);
+	friend Blob* operator*(Blob& A, const double num);
+	friend Blob* operator*(const double num, Blob& A);
+	friend Blob* operator*(Blob& A, Blob& B);
+	friend Blob* operator/(Blob& A, const double num);
+	friend Blob* operator/(const double num, Blob& A);
+	friend Blob* operator/(Blob& A, Blob& B);
 
 	// return [N,C,H,W]
 	vector<int> get_shape_vec();

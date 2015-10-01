@@ -2,7 +2,7 @@
 
 namespace mini_net {
 
-Blob* operator+(Blob& A, const int num) {
+Blob* operator+(Blob& A, const double num) {
 	Blob *pB = new Blob(A.get_shape_vec());
 	int N = A.get_N();
 	for (int i = 0; i < N; ++i) {
@@ -10,7 +10,7 @@ Blob* operator+(Blob& A, const int num) {
 	}
 	return pB;
 }
-Blob* operator+(const int num, Blob& A) {
+Blob* operator+(const double num, Blob& A) {
 	Blob *pB = new Blob(A.get_shape_vec());
 	int N = A.get_N();
 	for (int i = 0; i < N; ++i) {
@@ -19,10 +19,106 @@ Blob* operator+(const int num, Blob& A) {
 	return pB;
 }
 Blob* operator+(Blob& A, Blob& B) {
+	vector<int> sz_A = A.get_shape_vec();
+	vector<int> sz_B = B.get_shape_vec();
+	for (int i = 0; i < 4; ++i) {
+		if (sz_A[i] != sz_B[i])
+			return NULL;
+	}
 	Blob *pC = new Blob(A.get_shape_vec());
 	int N = A.get_N();
 	for (int i = 0; i < N; ++i) {
 		(*pC)[i] = A[i] + B[i];
+	}
+	return pC;
+}
+Blob* operator-(Blob& A, const double num) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] - num;
+	}
+	return pB;
+}
+Blob* operator-(const double num, Blob& A) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = num - A[i] ;
+	}
+	return pB;
+}
+Blob* operator-(Blob& A, Blob& B) {
+	vector<int> sz_A = A.get_shape_vec();
+	vector<int> sz_B = B.get_shape_vec();
+	for (int i = 0; i < 4; ++i) {
+		if (sz_A[i] != sz_B[i])
+			return NULL;
+	}
+	Blob *pC = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pC)[i] = A[i] - B[i];
+	}
+	return pC;
+}
+Blob* operator*(Blob& A, const double num) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] * num;
+	}
+	return pB;
+}
+Blob* operator*(const double num, Blob& A) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] * num;
+	}
+	return pB;
+}
+Blob* operator*(Blob& A, Blob& B) {
+	vector<int> sz_A = A.get_shape_vec();
+	vector<int> sz_B = B.get_shape_vec();
+	for (int i = 0; i < 4; ++i) {
+		if (sz_A[i] != sz_B[i])
+			return NULL;
+	}
+	Blob *pC = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pC)[i] = A[i] % B[i];
+	}
+	return pC;
+}
+Blob* operator/(Blob& A, const double num) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = A[i] / num;
+	}
+	return pB;
+}
+Blob* operator/(const double num, Blob& A) {
+	Blob *pB = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pB)[i] = num / A[i];
+	}
+	return pB;
+}
+Blob* operator/(Blob& A, Blob& B) {
+	vector<int> sz_A = A.get_shape_vec();
+	vector<int> sz_B = B.get_shape_vec();
+	for (int i = 0; i < 4; ++i) {
+		if (sz_A[i] != sz_B[i])
+			return NULL;
+	}
+	Blob *pC = new Blob(A.get_shape_vec());
+	int N = A.get_N();
+	for (int i = 0; i < N; ++i) {
+		(*pC)[i] = A[i] / B[i];
 	}
 	return pC;
 }
