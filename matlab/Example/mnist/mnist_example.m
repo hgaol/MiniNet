@@ -3,6 +3,7 @@
 % version: beta 0.01
 %
 addpath ..\..\ ..\..\Layers
+clear all
 %% Mnist
 % % net options
 % options.loss_function = @two_layer_convnet;
