@@ -8,7 +8,6 @@ function [ dX ] = MaxPoolBackwardNaive( dY, cache )
 %       X: [N, C, Hx, Wx]
 %       pool_param: stride, height, width
 % dX: [N, C, Hx, Wx]
-% example:
 % 
 
 [N, C, Hy, Wy] = size(dY);

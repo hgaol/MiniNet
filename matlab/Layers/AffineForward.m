@@ -15,14 +15,6 @@ cache.W = W;
 cache.b = b;
 N= size(X,1);
 F = size(W,1);
-% X = permute(X, [3,4,2,1,]);
-% W = permute(W, [3,4,2,1,]);
-% Y = zeros([N,F]);
-% for i = 1:N
-%     for f = 1:F
-%         Y(i,f) = sum(sum(sum(X(:,:,:,i) .* W(:,:,:,f)))) + b(f);
-%     end
-% end
 X = reshape(X, N, []);
 W = reshape(W, F, []);
 Y = X * W' + repmat(b', [N, 1]);

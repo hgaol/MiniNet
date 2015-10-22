@@ -10,10 +10,7 @@ function [ dX, dW, db ] = ConvBackwardNaive( dY, cache )
 %               pad
 %               stride
 % dY: [N, F, Hy, Wy]
-% example: 
-% cache.X = rand(100,3,4,4);cache.W = rand(5,3,3,3);cache.b = rand(5,1);
-% dY = rand(100,5,4,4)
-% cache.conv_param.pad = 1; cache.conv_param.stride = 1;
+% 
 
 X = cache.X;
 W = cache.W;

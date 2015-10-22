@@ -1,6 +1,7 @@
 %
 % author: hgaolbb
 % version: beta 0.01
+% brief: train mnist example(small data)
 %
 addpath ..\..\ ..\..\Layers
 clear all

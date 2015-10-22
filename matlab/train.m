@@ -4,19 +4,8 @@ function [best_model, loss_history, train_acc_history, val_acc_history]...\
 %
 % author: hgaolbb
 % version: beta 0.01
+% brief: train cnn
 %
-% Test for run
-% X = ones(100,3,4,4);model.W1 = 1e-2 * ones(5,3,3,3);model.b1 = ones(5,1);model.W2 = ones(10,5,2,2);model.b2 = ones(10,1);
-% model.conv_param.pad = 1; model.conv_param.stride = 1;y = randint(100,1,[1,10]);
-% model.pool_param.stride = 2;model.pool_param.width = 2; model.pool_param.height = 2;
-% [best_model, loss_history, train_acc_history, val_acc_history] = train(X, y, X, y, model, @two_layer_convnet);
-
-% Test for correct
-% X = rand(100,3,4,4);model.W1 = 1e-2 * random('norm',0,1,[5,3,3,3]);model.b1 = zeros(5,1);
-% model.W2 = 1e-2 * random('norm',0,1,[10,5,2,2]);model.b2 = zeros(10,1);
-% model.conv_param.pad = 1; model.conv_param.stride = 1;y = randint(100,1,[1,10]);
-% model.pool_param.stride = 2;model.pool_param.width = 2; model.pool_param.height = 2;
-% [best_model, loss_history, train_acc_history, val_acc_history] = train(X, y, X, y, model, @two_layer_convnet,0,0.015,1,0.95,1000);
 
 %% argin
 if ~exist('options', 'var')
@@ -94,7 +83,6 @@ for it = 1:num_iters
     
     [loss, grads] = options.loss_function(X_batch, model, y_batch, options.reg);
 
-%     fprintf('iter: %d\tloss: %d\t\n', it, loss);
     loss_history = [loss_history; loss];
     
     % updata
@@ -128,22 +116,6 @@ for it = 1:num_iters
         
         model.(dname) = model.(dname) + dx;
     end
-    
-%% Test
-    
-    % loss_history = [loss_history; loss];
-    
-    % epoch_end = mod(it, iterations_per_epoch) == 0;
-    % if (it > 1 && epoch_end)
-    %     options.lr = options.lr * options.lr_decay;
-    % end
-    % X_train_subset = X_batch;
-    % y_train_subset = y_batch;
-    % scores_train = options.loss_function(X_train_subset, model);
-    % [~, y_pred_train] = max(scores_train, [], 2);
-    % train_acc = y_pred_train == y_train_subset;
-    % train_acc = mean(train_acc(:));
-    % fprintf('iter: %d\tloss: %d\tacc: %0.3f%%\tlr: %d\n', it, loss, train_acc * 100, options.lr);
 
 %% Evaluate
     first_it = (it == 1);
@@ -171,7 +143,6 @@ for it = 1:num_iters
         [~, y_pred_train] = max(scores_train, [], 2);
         train_acc = y_pred_train == y_train_subset;
         train_acc = mean(train_acc(:));
-        % fprintf('Train Accuracy: %0.3f%%\n', train_acc * 100);
         train_acc_history = [train_acc_history; train_acc];
         
         % evaluate val accuracy
@@ -180,7 +151,6 @@ for it = 1:num_iters
         val_acc = (y_pred_val == y_val);
         val_acc = mean(val_acc(:));
         val_acc_history = [val_acc_history; val_acc];
-        % fprintf('Train Accuracy: %0.3f%%\n', train_acc * 100);
         fprintf('iter: %d\tloss: %d\ttrain_acc: %0.3f%%\tval_acc: %0.3f%%\tlr: %d\n',...\
                     it, loss, train_acc * 100, val_acc*100, options.lr);
         

@@ -3,6 +3,7 @@
 % version: beta 0.01
 %
 addpath ..\Layers\
+clear all;
 %% Test function EvalNumGradientMat
 a = reshape(1:9,3,3);
 x = reshape(11:19,3,3);
@@ -86,6 +87,15 @@ dx_num = EvalNumGradientMat(@(x)MaxPoolForwardNaive(x,pool_param), x, dy);
 [~, cache] = MaxPoolForwardNaive(x,pool_param);
 [dx] = MaxPoolBackwardNaive(dy, cache);
 fprintf('\nTesting MaxPooling Layer:\n');
+fprintf('diffence dx: %e\n', rel_error(dx_num, dx));
+%% Dropout Layer
+x = randn(8, 8);
+dy = randn(8, 8);
+dropout_param.mode = 'train';dropout_param.p = 0.7;
+dx_num = EvalNumGradientMat(@(x)DropoutForward(x,dropout_param), x, dy);
+[~, cache] = DropoutForward(x,dropout_param);
+[dx] = DropoutBackward(dy, cache);
+fprintf('\nTesting Dropout Layer:\n');
 fprintf('diffence dx: %e\n', rel_error(dx_num, dx));
 %% two layer conv net
 x = randn(2, 2, 16, 16);

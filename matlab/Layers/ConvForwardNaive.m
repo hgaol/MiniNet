@@ -10,8 +10,7 @@ function [ Y, cache ] = ConvForwardNaive( X, W, b, conv_param )
 %               pad
 %               stride
 % Y: [N, F, Hy, Wy]
-% example: x = rand(100,3,4,4);w = rand(5,3,3,3);b = rand(5,1);
-% conv_param.pad = 1; conv_param.stride = 1;
+% 
 
 [N, C, Hx, Wx] = size(X);
 [F, C, Hw, Ww] = size(W);

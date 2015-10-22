@@ -9,8 +9,8 @@ function [ Y, cache ] = MaxPoolForwardNaive( X, pool_param )
 %               width
 %               stride
 % Y: [N, F, Hy, Wy]
-% example:
-% x = rand(100,3,4,4);pool_param.stride = 2;pool_param.width = 2; pool_param.height = 2
+%
+
 [N, C, Hx, Wx] = size(X);
 cache.X = X;
 cache.pool_param = pool_param;
