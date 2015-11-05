@@ -1,61 +1,40 @@
-//#ifndef MINI_NET_LAYER_HPP_
-//#define MINI_NET_LAYER_HPP_
-//
-//#include "blob.hpp"
-//#include <opencv2/core/core.hpp>
-//#include <algorithm>
-//#include <string>
-//#include <vector>
-//#include <map>
-//
-//using std::vector;
+/*!
+*  Copyright (c) 2015 by hgaolbb
+* \file layer.hpp
+* \brief all layers implement
+*/
+
+#ifndef MINI_NET_LAYER_HPP_
+#define MINI_NET_LAYER_HPP_
+
+#include "blob.hpp"
+#include <map>
+
+using std::vector;
 //using std::map;
-//using cv::Mat;
-//
-//namespace mini_net {
-//
-///**
-// Layer base class
-// */
-//class Layer {
-//public:
-//	explicit Layer() {}
-//	virtual ~Layer() {}
-//
-//	//@brief forward
-//	//@param[in]  const vector<Blob*>& in		in[0]:X, in[1]:weights, in[2]:bias 
-//	//@param[out] Blob* out						Y 
-//	//@param[in]  const Param* param			params		
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL) = 0;
-//
-//	//@brief backward
-//	//@param[in]  const Blob* dout				dout, backpro value 
-//	//@param[in]  const vector<Blob*>& cache 	just use vector<Blob*>& in when forward
-//	//@param[out] vector<Blob*> grads			grads{X, weights, bias}	
-//	//@param[in]  const Param* param			param
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL) = 0;
-//};
-//
-///**
-// Affine Layer
-// */
-//class AffineLayer : public Layer {
-//public:
-//	explicit AffineLayer() {}
-//	virtual ~AffineLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
-//};
+
+namespace mini_net {
+
+/**
+ Affine Layer
+ */
+class AffineLayer {
+public:
+	AffineLayer() {}
+	~AffineLayer() {}
+	static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+	static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, const Param* param = NULL);
+};
 //
 ///**
 // ReLU Layer
 // */
-//class ReluLayer : public Layer {
+//class ReluLayer {
 //public:
 //	explicit ReluLayer() {}
 //	virtual ~ReluLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//	static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//	static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -113,6 +92,6 @@
 //	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
-//} // namespace mini_net
-//
-//#endif // MINI_NET_LAYER_
+} // namespace mini_net
+
+#endif // MINI_NET_LAYER_

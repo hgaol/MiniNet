@@ -1,3 +1,9 @@
+/*!
+*  Copyright (c) 2015 by hgaolbb
+* \file blob.cpp
+* \brief all layers implement
+*/
+
 #include "../include/blob.hpp"
 
 namespace mini_net {
@@ -122,8 +128,34 @@ Blob* operator/(Blob& A, Blob& B) {
 	}
 	return pC;
 }
+
+// += -= *= /=
+Blob& Blob::operator+=(const double num) {
+    for (int i=0; i<N_; ++i) {
+        (*data_)[i] = (*data_)[i] + num;
+    }
+    return *this;
+}
+Blob& Blob::operator-=(const double num) {
+    for (int i=0; i<N_; ++i) {
+        (*data_)[i] = (*data_)[i] - num;
+    }
+    return *this;
+}
+Blob& Blob::operator*=(const double num) {
+    for (int i=0; i<N_; ++i) {
+        (*data_)[i] = (*data_)[i] * num;
+    }
+    return *this;
+}
+Blob& Blob::operator/=(const double num) {
+    for (int i=0; i<N_; ++i) {
+        (*data_)[i] = (*data_)[i] / num;
+    }
+    return *this;
+}
+
 //---Blob---
-	
 Blob::Blob(const int n, const int c, const int h, const int w, int type) :
 		N_(n), C_(c), H_(h), W_(w) {
 	if (type == TNONE)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::none));
@@ -131,6 +163,7 @@ Blob::Blob(const int n, const int c, const int h, const int w, int type) :
 	if (type == TZEROS)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
 	if (type == TRANDU)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randu));
 	if (type == TRANDN)	data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn));
+    if (type == TDEFAULT) data_ = new vector<cube>(N_, cube(H_, W_, C_));
 	return;
 }
 Blob::Blob(const int n, const int c, const int h, const int w, const double eps):

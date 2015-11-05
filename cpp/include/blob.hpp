@@ -1,3 +1,9 @@
+/*!
+*  Copyright (c) 2015 by hgaolbb
+* \file blob.hpp
+* \brief all layers implement
+*/
+
 #ifndef MINI_NET_BLOB_HPP_
 #define MINI_NET_BLOB_HPP_
 
@@ -14,7 +20,8 @@ enum FillType {
 	TONES = 1,
 	TZEROS = 2,
 	TRANDU = 3,
-	TRANDN = 4
+	TRANDN = 4,
+    TDEFAULT = 5
 };
 class Blob;
 Blob* operator+(Blob& A, const double num);
@@ -34,7 +41,7 @@ class Blob {
 
 public:
 	Blob() : N_(0), C_(0), H_(0), W_(0), data_(NULL) {}
-	explicit Blob(const int n, const int c, const int h, const int w, int type);
+	explicit Blob(const int n, const int c, const int h, const int w, int type = TDEFAULT);
 	explicit Blob(const int n, const int c, const int h, const int w, const double eps);
 	explicit Blob(const vector<int>& shape);
 	explicit Blob(const vector<int>& shape, const double eps);
@@ -53,6 +60,11 @@ public:
 	friend Blob* operator/(Blob& A, const double num);
 	friend Blob* operator/(const double num, Blob& A);
 	friend Blob* operator/(Blob& A, Blob& B);
+
+    Blob& operator+=(const double num);
+    Blob& operator-=(const double num);
+    Blob& operator*=(const double num);
+    Blob& operator/=(const double num);
 
 	// return [N,C,H,W]
 	vector<int> get_shape_vec();
