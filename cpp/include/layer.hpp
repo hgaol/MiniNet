@@ -20,10 +20,10 @@ namespace mini_net {
  */
 class AffineLayer {
 public:
-	AffineLayer() {}
-	~AffineLayer() {}
-	static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-	static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, const Param* param = NULL);
+    AffineLayer() {}
+    ~AffineLayer() {}
+    static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+    static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, const Param* param = NULL);
 };
 //
 ///**
@@ -31,10 +31,10 @@ public:
 // */
 //class ReluLayer {
 //public:
-//	explicit ReluLayer() {}
-//	virtual ~ReluLayer() {}
-//	static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit ReluLayer() {}
+//  virtual ~ReluLayer() {}
+//  static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -42,10 +42,10 @@ public:
 // */
 //class SoftmaxLossLayer : public Layer {
 //public:
-//	explicit SoftmaxLossLayer() {}
-//	virtual ~SoftmaxLossLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit SoftmaxLossLayer() {}
+//  virtual ~SoftmaxLossLayer() {}
+//  virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -53,10 +53,10 @@ public:
 // */
 //class SVMLossLayer : public Layer {
 //public:
-//	explicit SVMLossLayer() {}
-//	virtual ~SVMLossLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit SVMLossLayer() {}
+//  virtual ~SVMLossLayer() {}
+//  virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -64,10 +64,10 @@ public:
 // */
 //class ConvolutionLayer : public Layer {
 //public:
-//	explicit ConvolutionLayer(const std::vector<std::map<std::string, int> > param_in);
-//	virtual ~ConvolutionLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit ConvolutionLayer(const std::vector<std::map<std::string, int> > param_in);
+//  virtual ~ConvolutionLayer() {}
+//  virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -75,10 +75,10 @@ public:
 // */
 //class PoolingLayer : public Layer {
 //public:
-//	explicit PoolingLayer(const std::vector<std::map<std::string, int> > param_in);
-//	virtual ~PoolingLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit PoolingLayer(const std::vector<std::map<std::string, int> > param_in);
+//  virtual ~PoolingLayer() {}
+//  virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 ///**
@@ -86,10 +86,10 @@ public:
 // */
 //class DropoutLayer : public Layer {
 //public:
-//	explicit DropoutLayer() {}
-//	virtual ~DropoutLayer() {}
-//	virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-//	virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
+//  explicit DropoutLayer() {}
+//  virtual ~DropoutLayer() {}
+//  virtual void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
+//  virtual void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*> grads, const Param* param = NULL);
 //};
 //
 } // namespace mini_net
