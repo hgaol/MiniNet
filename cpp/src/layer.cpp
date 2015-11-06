@@ -61,11 +61,8 @@ void AffineLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>
     int n = dout->get_N();
 
     Blob *pX = cache[0];
-    auto szX = pX->size();
     Blob *pW = cache[1];
-    auto szW = pW->size();
     Blob *pb = cache[2];
-    auto szb = pb->size();
 
     // calc grads
     // dX
@@ -78,7 +75,6 @@ void AffineLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>
     grads.push_back(dW);
     // db
     mat mat_db = (*dout).reshape().t() * mat(n, 1);
-    mat_db.print();
     mat2Blob(mat_db, &db, (*pb).size());
     grads.push_back(db);
 

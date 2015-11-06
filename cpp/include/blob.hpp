@@ -26,18 +26,18 @@ enum FillType {
 };
 class Blob;
 // operation
-Blob* operator+(Blob& A, const double num);
-Blob* operator+(const double num, Blob& A);
-Blob* operator+(Blob& A, Blob& B);
-Blob* operator-(Blob& A, const double num);
-Blob* operator-(const double num, Blob& A);
-Blob* operator-(Blob& A, Blob& B);
-Blob* operator*(Blob& A, const double num);
-Blob* operator*(const double num, Blob& A);
-Blob* operator*(Blob& A, Blob& B);
-Blob* operator/(Blob& A, const double num);
-Blob* operator/(const double num, Blob& A);
-Blob* operator/(Blob& A, Blob& B);
+Blob operator+(Blob& A, const double num);
+Blob operator+(const double num, Blob& A);
+Blob operator+(Blob& A, Blob& B);
+Blob operator-(Blob& A, const double num);
+Blob operator-(const double num, Blob& A);
+Blob operator-(Blob& A, Blob& B);
+Blob operator*(Blob& A, const double num);
+Blob operator*(const double num, Blob& A);
+Blob operator*(Blob& A, Blob& B);
+Blob operator/(Blob& A, const double num);
+Blob operator/(const double num, Blob& A);
+Blob operator/(Blob& A, Blob& B);
 // convertion
 void mat2Blob(mat& mA, Blob** out, int c, int h, int w);
 void mat2Blob(mat& mA, Blob** out, const vector<int>& sz);
@@ -50,21 +50,23 @@ public:
     explicit Blob(const int n, const int c, const int h, const int w, const double eps);
     explicit Blob(const vector<int>& shape);
     explicit Blob(const vector<int>& shape, const double eps);
-    ~Blob();
+    ~Blob() {}
 
+    // need set shape later sometimes, like in test.hpp func[calcNumGradientBlob]
+    void setShape(vector<int>& shape);
     cube& operator[] (int i);
-    friend Blob* operator+(Blob& A, const double num);
-    friend Blob* operator+(const double num, Blob& A);
-    friend Blob* operator+(Blob& A, Blob& B);
-    friend Blob* operator-(Blob& A, const double num);
-    friend Blob* operator-(const double num, Blob& A);
-    friend Blob* operator-(Blob& A, Blob& B);
-    friend Blob* operator*(Blob& A, const double num);
-    friend Blob* operator*(const double num, Blob& A);
-    friend Blob* operator*(Blob& A, Blob& B);
-    friend Blob* operator/(Blob& A, const double num);
-    friend Blob* operator/(const double num, Blob& A);
-    friend Blob* operator/(Blob& A, Blob& B);
+    friend Blob operator+(Blob& A, const double num);
+    friend Blob operator+(const double num, Blob& A);
+    friend Blob operator+(Blob& A, Blob& B);
+    friend Blob operator-(Blob& A, const double num);
+    friend Blob operator-(const double num, Blob& A);
+    friend Blob operator-(Blob& A, Blob& B);
+    friend Blob operator*(Blob& A, const double num);
+    friend Blob operator*(const double num, Blob& A);
+    friend Blob operator*(Blob& A, Blob& B);
+    friend Blob operator/(Blob& A, const double num);
+    friend Blob operator/(const double num, Blob& A);
+    friend Blob operator/(Blob& A, Blob& B);
 
     Blob& operator+=(const double num);
     Blob& operator-=(const double num);
@@ -88,17 +90,23 @@ public:
     }
 
     // return data_
-    vector<cube>* get_data();
+    vector<cube>& get_data();
 
-    //@brief: reshape [N,C,H,W] to [N,C*H*W], it will increase efficiency. [TODO]
+    //@brief: reshape [N,C,H,W] to [N,C*H*W]
     mat reshape();
+    // sum of all element in Blob
+    double sum();
+    /*! sum number of element*/
+    double sumElement();
+    /*! element wise operation, if element is smaller than val, then set it equals to val*/
+    Blob max(double val);
 
 private:
     int N_;
     int C_;
     int H_;
     int W_;
-    vector<cube> *data_;
+    vector<cube> data_;
 };
 
 // struct Param

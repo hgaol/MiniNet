@@ -8,125 +8,121 @@
 
 namespace mini_net {
 
-Blob* operator+(Blob& A, const double num) {
-    Blob *pB = new Blob(A.size());
+Blob operator+(Blob& A, const double num) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] + num;
+        out[i] = A[i] + num;
     }
-    return pB;
+    return out;
 }
-Blob* operator+(const double num, Blob& A) {
-    Blob *pB = new Blob(A.size());
+Blob operator+(const double num, Blob& A) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] + num;
+        out[i] = A[i] + num;
     }
-    return pB;
+    return out;
 }
-Blob* operator+(Blob& A, Blob& B) {
+Blob operator+(Blob& A, Blob& B) {
     vector<int> sz_A = A.size();
     vector<int> sz_B = B.size();
     for (int i = 0; i < 4; ++i) {
-        if (sz_A[i] != sz_B[i])
-            return NULL;
+        assert(sz_A[i] == sz_B[i]);
     }
-    Blob *pC = new Blob(A.size());
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pC)[i] = A[i] + B[i];
+        out[i] = A[i] + B[i];
     }
-    return pC;
+    return out;
 }
-Blob* operator-(Blob& A, const double num) {
-    Blob *pB = new Blob(A.size());
+Blob operator-(Blob& A, const double num) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] - num;
+        out[i] = A[i] - num;
     }
-    return pB;
+    return out;
 }
-Blob* operator-(const double num, Blob& A) {
-    Blob *pB = new Blob(A.size());
+Blob operator-(const double num, Blob& A) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = num - A[i] ;
+        out[i] = num - A[i] ;
     }
-    return pB;
+    return out;
 }
-Blob* operator-(Blob& A, Blob& B) {
+Blob operator-(Blob& A, Blob& B) {
     vector<int> sz_A = A.size();
     vector<int> sz_B = B.size();
     for (int i = 0; i < 4; ++i) {
-        if (sz_A[i] != sz_B[i])
-            return NULL;
+        assert(sz_A[i] == sz_B[i]);
     }
-    Blob *pC = new Blob(A.size());
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pC)[i] = A[i] - B[i];
+        out[i] = A[i] - B[i];
     }
-    return pC;
+    return out; 
 }
-Blob* operator*(Blob& A, const double num) {
-    Blob *pB = new Blob(A.size());
+Blob operator*(Blob& A, const double num) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] * num;
+        out[i] = A[i] * num;
     }
-    return pB;
+    return out;
 }
-Blob* operator*(const double num, Blob& A) {
-    Blob *pB = new Blob(A.size());
+Blob operator*(const double num, Blob& A) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] * num;
+        out[i] = A[i] * num;
     }
-    return pB;
+    return out;
 }
-Blob* operator*(Blob& A, Blob& B) {
+Blob operator*(Blob& A, Blob& B) {
     vector<int> sz_A = A.size();
     vector<int> sz_B = B.size();
     for (int i = 0; i < 4; ++i) {
-        if (sz_A[i] != sz_B[i])
-            return NULL;
+        assert(sz_A[i] == sz_B[i]);
     }
-    Blob *pC = new Blob(A.size());
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pC)[i] = A[i] % B[i];
+        out[i] = A[i] % B[i];
     }
-    return pC;
+    return out;
 }
-Blob* operator/(Blob& A, const double num) {
-    Blob *pB = new Blob(A.size());
+Blob operator/(Blob& A, const double num) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = A[i] / num;
+        out[i] = A[i] / num;
     }
-    return pB;
+    return out;
 }
-Blob* operator/(const double num, Blob& A) {
-    Blob *pB = new Blob(A.size());
+Blob operator/(const double num, Blob& A) {
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pB)[i] = num / A[i];
+        out[i] = num / A[i];
     }
-    return pB;
+    return out;
 }
-Blob* operator/(Blob& A, Blob& B) {
+Blob operator/(Blob& A, Blob& B) {
     vector<int> sz_A = A.size();
     vector<int> sz_B = B.size();
     for (int i = 0; i < 4; ++i) {
-        if (sz_A[i] != sz_B[i])
-            return NULL;
+        assert(sz_A[i] == sz_B[i]);
     }
-    Blob *pC = new Blob(A.size());
+    Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
-        (*pC)[i] = A[i] / B[i];
+        out[i] = A[i] / B[i];
     }
-    return pC;
+    return out;
 }
 
 // convertion
@@ -173,65 +169,66 @@ void mat2Blob(mat& mA, Blob** out, const vector<int>& sz) {
 // += -= *= /=
 Blob& Blob::operator+=(const double num) {
     for (int i=0; i<N_; ++i) {
-        (*data_)[i] = (*data_)[i] + num;
+        data_[i] = data_[i] + num;
     }
     return *this;
 }
 Blob& Blob::operator-=(const double num) {
     for (int i=0; i<N_; ++i) {
-        (*data_)[i] = (*data_)[i] - num;
+        data_[i] = data_[i] - num;
     }
     return *this;
 }
 Blob& Blob::operator*=(const double num) {
     for (int i=0; i<N_; ++i) {
-        (*data_)[i] = (*data_)[i] * num;
+        data_[i] = data_[i] * num;
     }
     return *this;
 }
 Blob& Blob::operator/=(const double num) {
     for (int i=0; i<N_; ++i) {
-        (*data_)[i] = (*data_)[i] / num;
+        data_[i] = data_[i] / num;
     }
     return *this;
 }
 
 //---Blob---
+void Blob::setShape(vector<int>& shape) {
+    N_ = shape[0];
+    C_ = shape[1];
+    H_ = shape[2];
+    W_ = shape[3];
+    data_ = vector<cube>(N_, cube(H_, W_, C_));
+    return;
+}
 Blob::Blob(const int n, const int c, const int h, const int w, int type) :
         N_(n), C_(c), H_(h), W_(w) {
-    if (type == TNONE)  data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::none));
-    if (type == TONES)  data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::ones));
-    if (type == TZEROS) data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
-    if (type == TRANDU) data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randu));
-    if (type == TRANDN) data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn));
-    if (type == TDEFAULT) data_ = new vector<cube>(N_, cube(H_, W_, C_));
+    if (type == TNONE)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::none));
+    if (type == TONES)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::ones));
+    if (type == TZEROS) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
+    if (type == TRANDU) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randu));
+    if (type == TRANDN) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn));
+    if (type == TDEFAULT) data_ = vector<cube>(N_, cube(H_, W_, C_));
     return;
 }
 Blob::Blob(const int n, const int c, const int h, const int w, const double eps):
         N_(n), C_(c), H_(h), W_(w) {
-    data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
+    data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
     return;
 }
 Blob::Blob(const vector<int>& shape) :
         N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-    data_ = new vector<cube>(N_, cube(H_, W_, C_));
+    data_ = vector<cube>(N_, cube(H_, W_, C_));
     return;
 }
 Blob::Blob(const vector<int>& shape, const double eps) :
         N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-    data_ = new vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
-    return;
-}
-
-Blob::~Blob() {
-    if (data_) {
-        delete data_;
-    }
+    data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
     return;
 }
 
 cube& Blob::operator[] (int i) {
-    return (*data_)[i];
+    return data_[i];
 }
 
 vector<int> Blob::size() {
@@ -239,16 +236,37 @@ vector<int> Blob::size() {
     return shape;   
 }
 
-vector<cube>* Blob::get_data() {
+vector<cube>& Blob::get_data() {
     return data_;
 }
 
 mat Blob::reshape() {
     cube dst;
     for (int i = 0; i < N_; ++i) {
-        dst = join_slices(dst, (*data_)[i]);
+        dst = join_slices(dst, data_[i]);
     }
     return arma::reshape(vectorise(dst), N_, C_*H_*W_);
+}
+
+double Blob::sum() {
+    assert(!data_.empty());
+    double ans = 0;
+    for (int i = 0; i < N_; ++i) {
+        ans += accu(data_[i]);
+    }
+    return ans;
+}
+
+double Blob::sumElement() {
+    return N_ * C_ * H_ * W_;
+}
+
+Blob Blob::max(double val) {
+    assert(!data_.empty());
+    Blob out(*this);
+    for (int i = 0; i < N_; ++i) {
+        out[i].transform([](double ev) {return ev;});
+    }
 }
 
 } // namespace mini_net

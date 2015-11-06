@@ -43,16 +43,30 @@ void testArma() {
     cout << a(0,0,1);
 }
 void testBlob() {
+    /*! test operation */
+    Blob oa(2,2,2,2,TONES);
+    Blob ob(2,2,2,2,TONES);
+    (oa - ob)[0].print();
+    (oa + ob)[0].print();
+    (oa * ob)[0].print();
+    (oa / ob)[0].print();
+
+    // check sum()
+    Blob aa(2,2,2,2,TONES);
+    cout << aa.sum();
+
     // reshape
     Blob pc(5,2,2,2,TONES);
     mat mc = pc.reshape();
     cout << "row: " << mc.n_rows << "\t" << "col: " << mc.n_cols << endl;
     mc.print();
+
     // ptr
     Blob *pa = new Blob(5,2,2,1,TONES);
     (*pa)[0].print();
     Blob *pb = new Blob(5,2,2,2,TDEFAULT);
     (*pb)[0].print();
+
     // += -= *= /+
     Blob a(2,3,2,2,TONES);
     a[0].print("a[0] = \n");
@@ -83,6 +97,7 @@ void testAffineLayer() {
 }
 
 void testTest() {
+    /*
     // check gradient
     mat x = linspace<mat>(0, 9, 10);
     mat a(1, 10, fill::ones);
@@ -92,6 +107,23 @@ void testTest() {
     mat num_da = Test::calcNumGradientA(a, Test::test_fcalar, x);
     a.print();
     num_da.print();
+    */
+
+    /* chech gradient mat */
+    // affine layer
+    Blob x(3,2,2,2,TRANDN);
+    Blob w(2,2,2,2,TRANDN);
+    Blob b(2,1,1,1,TRANDN);
+    Blob dout(3,2,1,1,TRANDN);
+    vector<Blob*> in{&x, &w, &b};
+    Blob num_dx = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDX);
+    Blob num_dw = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDW);
+    Blob num_db = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDB);
+    vector<Blob*> grads;
+    AffineLayer::backward(&dout, in, grads);
+    cout << (num_dx - *grads[0]).sum() << endl;
+    cout << (num_dw - *grads[1]).sum() << endl;
+    cout << (num_db - *grads[2]).sum() << endl;
 
     return;
 }
