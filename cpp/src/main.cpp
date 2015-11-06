@@ -2,11 +2,40 @@
 #include <armadillo>
 #include "../include/blob.hpp"
 #include "../include/layer.hpp"
+#include "../include/test.hpp"
+//#include "test.cpp"
 
 using namespace arma;
 using namespace mini_net;
 
-void testArmo() {
+void testArma() {
+    // A * B, run!
+    mat A = randu<mat>(5, 10);
+    mat B = randu<mat>(10, 5);
+    mat C = A * B;
+    C.print();
+    // mat2blob
+    mat mc(2,8,fill::randu);
+    mc.print();
+    //mc = mc.t();
+    //mc.print();
+    //cube cb = cube(mc.colptr(0), 2, 2, 3);
+    //cb.print();
+    Blob *bc = NULL;
+    mat2Blob(mc, &bc, 2,2,2);
+    // vectorisze
+    cube ca(2,2,2,fill::ones);
+    ca *= 2;
+    ca.print();
+    mat mb = reshape(vectorise(ca), 4, 2);
+    mb.print();
+
+    mat ma(4,2,fill::ones);
+    ma *= 0.5;
+    //cout << vectorise(ma) << endl;
+    cout << accu(vectorise(ma) % vectorise(ca)) << endl;
+   
+    //
     cube a(2,2,2);
     a.print();
     cout << a(0,0,0) << endl;
@@ -14,8 +43,13 @@ void testArmo() {
     cout << a(0,0,1);
 }
 void testBlob() {
+    // reshape
+    Blob pc(5,2,2,2,TONES);
+    mat mc = pc.reshape();
+    cout << "row: " << mc.n_rows << "\t" << "col: " << mc.n_cols << endl;
+    mc.print();
     // ptr
-    Blob *pa = new Blob(5,2,2,2,TONES);
+    Blob *pa = new Blob(5,2,2,1,TONES);
     (*pa)[0].print();
     Blob *pb = new Blob(5,2,2,2,TDEFAULT);
     (*pb)[0].print();
@@ -43,14 +77,31 @@ void testAffineLayer() {
     vector<Blob*> vblob{&a, &b, &c};
     Blob *out = NULL;
     // test Affine Layer forward
-    AffineLayer::forward(vblob, out);
+    AffineLayer::forward(vblob, &out);
+    vector<Blob*> grads;
+    AffineLayer::backward(out, vblob, grads);
+}
+
+void testTest() {
+    // check gradient
+    mat x = linspace<mat>(0, 9, 10);
+    mat a(1, 10, fill::ones);
+    mat num_dx = Test::calcNumGradientX(x, Test::test_fcalar, a);
+    x.print();
+    num_dx.print();
+    mat num_da = Test::calcNumGradientA(a, Test::test_fcalar, x);
+    a.print();
+    num_da.print();
+
+    return;
 }
 
 int main()
 {
-    //testArmo();
+    //testArma();
     //testBlob();
-    testAffineLayer();
+    //testAffineLayer();
+    testTest();
 
-	return 0;
+    return 0;
 }

@@ -8,22 +8,40 @@
 #define MINI_NET_LAYER_HPP_
 
 #include "blob.hpp"
-#include <map>
-
 using std::vector;
-//using std::map;
 
 namespace mini_net {
 
-/**
- Affine Layer
+/*!
+ * \brief Affine Layer
  */
 class AffineLayer {
 public:
     AffineLayer() {}
     ~AffineLayer() {}
-    static void forward(const vector<Blob*>& in, Blob* out, const Param* param = NULL);
-    static void backward(const Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, const Param* param = NULL);
+    /*!
+    * \brief forward
+    *             X:        [N, C, Hx, Wx]
+    *             weight:   [F, C, Hw, Ww]
+    *             bias:     [F, 1, 1, 1]
+    *             out:      [N, F, 1, 1]
+    * \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:weights, in[2]:bias
+    * \param[in]  const Param* param            params
+    * \param[out] Blob& out                     Y
+    */
+    static void forward(const vector<Blob*>& in, Blob** out);
+
+    /*!
+    * \brief backward
+    *             in:       [N, C, Hx, Wx]
+    *             weight:   [F, C, Hw, Ww]
+    *             bias:     [F, 1, 1, 1]
+    *             dout:     [N, F, 1, 1]
+    * \param[in]  const Blob* dout              dout
+    * \param[in]  const vector<Blob*>& cache    cache[0]:X, cache[1]:weights, cache[2]:bias
+    * \param[out] vector<Blob*>& grads          grads[0]:dX, grads[1]:dW, grads[2]:db
+    */
+    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads);
 };
 //
 ///**

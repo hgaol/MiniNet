@@ -9,6 +9,7 @@
 
 #include <armadillo>
 #include <vector>
+#include <assert.h>
 
 using std::vector;
 using namespace arma;
@@ -24,6 +25,7 @@ enum FillType {
     TDEFAULT = 5
 };
 class Blob;
+// operation
 Blob* operator+(Blob& A, const double num);
 Blob* operator+(const double num, Blob& A);
 Blob* operator+(Blob& A, Blob& B);
@@ -36,6 +38,9 @@ Blob* operator*(Blob& A, Blob& B);
 Blob* operator/(Blob& A, const double num);
 Blob* operator/(const double num, Blob& A);
 Blob* operator/(Blob& A, Blob& B);
+// convertion
+void mat2Blob(mat& mA, Blob** out, int c, int h, int w);
+void mat2Blob(mat& mA, Blob** out, const vector<int>& sz);
 
 class Blob {
 
@@ -67,7 +72,7 @@ public:
     Blob& operator/=(const double num);
 
     // return [N,C,H,W]
-    vector<int> get_shape_vec();
+    vector<int> size();
 
     inline int get_N() {
         return N_;
@@ -86,7 +91,7 @@ public:
     vector<cube>* get_data();
 
     //@brief: reshape [N,C,H,W] to [N,C*H*W], it will increase efficiency. [TODO]
-    cube& reshape();
+    mat reshape();
 
 private:
     int N_;
