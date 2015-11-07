@@ -103,8 +103,10 @@ public:
     double sum();
     /*! sum number of element*/
     double numElement();
-    /*! element wise operation, if element is smaller than val, then set it equals to val*/
+    /*! element wise operation, if element value is smaller than val, then set it equals to val */
     Blob max(double val);
+    /*! element wise operation, change data_ */
+    void maxIn(double val);
     /*! element wise operation, return absolute value*/
     Blob abs();
 

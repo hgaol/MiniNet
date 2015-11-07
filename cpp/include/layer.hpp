@@ -22,6 +22,15 @@ struct Param {
         conv_stride = s;
         conv_pad = p;
     }
+    /*! pool param */
+    int pool_stride;
+    int pool_width;
+    int pool_height;
+    inline void setPoolParam(int s, int w, int h) {
+        pool_stride = s;
+        pool_width = w;
+        pool_height = h;
+    }
 };
 
 /*!
@@ -86,6 +95,63 @@ public:
     * \param[out] vector<Blob*>& grads          grads[0]:dX, grads[1]:dW, grads[2]:db
     */
     static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+};
+
+/*!
+* \brief Max Pooling Layer
+*/
+class PoolLayer {
+public:
+    PoolLayer() {}
+    ~PoolLayer() {}
+
+    /*!
+    * \brief forward
+    *             X:        [N, C, Hx, Wx]
+    *             out:      [N, C, Hx/2, Wx/2]
+    * \param[in]  const vector<Blob*>& in       in[0]:X
+    * \param[in]  const Param* param        conv params
+    * \param[out] Blob& out                     Y
+    */
+    static void forward(const vector<Blob*>& in, Blob** out, Param& param);
+
+    /*!
+    * \brief backward
+    *             in:       [N, C, Hx, Wx]
+    *             dout:     [N, F, Hx/2, Wx/2]
+    * \param[in]  const Blob* dout              dout
+    * \param[in]  const vector<Blob*>& cache    cache[0]:X
+    * \param[out] vector<Blob*>& grads          grads[0]:dX
+    */
+    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+};
+
+/*!
+* \brief ReLU Layer
+*/
+class ReluLayer {
+public:
+    ReluLayer() {}
+    ~ReluLayer() {}
+
+    /*!
+    * \brief forward, out = max(0, X)
+    *             X:        [N, C, Hx, Wx]
+    *             out:      [N, C, Hx, Wx]
+    * \param[in]  const vector<Blob*>& in       in[0]:X
+    * \param[out] Blob& out                     Y
+    */
+    static void forward(const vector<Blob*>& in, Blob** out);
+
+    /*!
+    * \brief backward, dX = dout .* (X > 0)
+    *             in:       [N, C, Hx, Wx]
+    *             dout:     [N, F, Hx, Wx]
+    * \param[in]  const Blob* dout              dout
+    * \param[in]  const vector<Blob*>& cache    cache[0]:X
+    * \param[out] vector<Blob*>& grads          grads[0]:dX
+    */
+    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads);
 };
 
 } // namespace mini_net

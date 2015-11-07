@@ -212,6 +212,136 @@ void ConvLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& 
     return;
 }
 
- //TODO
+/*!
+* \brief forward
+*             X:        [N, C, Hx, Wx]
+*             out:      [N, C, Hx/2, Wx/2]
+* \param[in]  const vector<Blob*>& in       in[0]:X
+* \param[in]  const Param* param        conv params
+* \param[out] Blob& out                     Y
+*/
+void PoolLayer::forward(const vector<Blob*>& in, Blob** out, Param& param) {
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    int N = (*in[0]).get_N();
+    int C = (*in[0]).get_C();
+    int Hx = (*in[0]).get_H();
+    int Wx = (*in[0]).get_W();
+    int height = param.pool_height;
+    int width = param.pool_width;
+    int stride = param.pool_stride;
+
+    int Hy = (Hx - height) / stride + 1;
+    int Wy = (Wx - width) / stride + 1;
+    
+    *out = new Blob(N, C, Hy, Wy);
+
+    for (int n = 0; n < N; ++n) {
+        for (int c = 0; c < C; ++c) {
+            for (int hh = 0; hh < Hy; ++hh) {
+                for (int ww = 0; ww < Wy; ++ww) {
+                    /*(*in[0])[n](span(hh * stride, hh * stride + height - 1),
+                        span(ww * stride, ww * stride + width - 1),
+                        span(c, c)).print();
+                    cout << (*in[0])[n](span(hh * stride, hh * stride + height - 1),
+                        span(ww * stride, ww * stride + width - 1),
+                        span(c, c)).max() << endl;*/
+                    (**out)[n](hh, ww, c) = (*in[0])[n](span(hh * stride, hh * stride + height - 1),
+                                                        span(ww * stride, ww * stride + width - 1),
+                                                        span(c, c)).max();
+                }
+            }
+        }
+    }
+    return;
+}
+
+/*!
+* \brief backward
+*             cache:    [N, C, Hx, Wx]
+*             dout:     [N, F, Hx/2, Wx/2]
+* \param[in]  const Blob* dout              dout
+* \param[in]  const vector<Blob*>& cache    cache[0]:X
+* \param[out] vector<Blob*>& grads          grads[0]:dX
+*/
+void PoolLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param) {
+    int N = (*cache[0]).get_N();
+    int C = (*cache[0]).get_C();
+    int Hx = (*cache[0]).get_H();
+    int Wx = (*cache[0]).get_W();
+    int Hy = (*dout).get_H();
+    int Wy = (*dout).get_W();
+    int height = param.pool_height;
+    int width = param.pool_width;
+    int stride = param.pool_stride;
+
+    Blob *dX = new Blob((*cache[0]).size(), TZEROS);
+    //(*dX).print("dX:\n");
+
+    for (int n = 0; n < N; ++n) {
+        for (int c = 0; c < C; ++c) {
+            for (int hh = 0; hh < Hy; ++hh) {
+                for (int ww = 0; ww < Wy; ++ww) {
+                    mat window = (*cache[0])[n](span(hh * stride, hh * stride + height - 1),
+                                    span(ww * stride, ww * stride + width - 1),
+                                    span(c, c));
+                    double maxv = window.max();
+                    mat mask = conv_to<mat>::from(maxv == window);
+                    //mask.print("mask\n");
+                    //(mask%window).print("multi:\n");
+                    //(*dX)[n](span(hh * stride, hh * stride + height - 1),
+                    //    span(ww * stride, ww * stride + width - 1),
+                    //    span(c, c)).print();
+                    (*dX)[n](span(hh * stride, hh * stride + height - 1),
+                            span(ww * stride, ww * stride + width - 1),
+                            span(c, c)) += mask * (*dout)[n](hh, ww, c);
+                    //(*dX)[n](span(hh * stride, hh * stride + height - 1),
+                    //    span(ww * stride, ww * stride + width - 1),
+                    //    span(c, c)).print();
+                }
+            }
+        }
+    }
+    grads.push_back(dX);
+    return;
+}
+
+/*!
+* \brief forward, out = max(0, X)
+*             X:        [N, C, Hx, Wx]
+*             out:      [N, C, Hx, Wx]
+* \param[in]  const vector<Blob*>& in       in[0]:X
+* \param[out] Blob& out                     Y
+*/
+void ReluLayer::forward(const vector<Blob*>& in, Blob** out) {
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    *out = new Blob(*in[0]);
+    (**out).maxIn(0);
+    return;
+}
+
+/*!
+* \brief backward, dX = dout .* (X > 0)
+*             in:       [N, C, Hx, Wx]
+*             dout:     [N, F, Hx, Wx]
+* \param[in]  const Blob* dout              dout
+* \param[in]  const vector<Blob*>& cache    cache[0]:X
+* \param[out] vector<Blob*>& grads          grads[0]:dX
+*/
+void ReluLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads) {
+    Blob *dX = new Blob(*cache[0]);
+    int N = cache[0]->get_N();
+    for (int i = 0; i < N; ++i) {
+        (*dX)[i].transform([](double e) {return e > 0 ? 1 : 0;});
+    }
+    (*dX) = (*dout) * (*dX);
+    grads.push_back(dX);
+    return;
+}
 
 } //namespace mini_net

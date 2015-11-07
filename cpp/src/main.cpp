@@ -48,6 +48,7 @@ void testArma() {
     a(0,0,1) = 1;
     cout << a(0,0,1);
 }
+
 void testBlob() {
     /*! test pad() */
     Blob oa(2,2,2,2,TONES);
@@ -143,6 +144,40 @@ void testConvLayer() {
     return;
 }
 
+void testPoolLayer() {
+    Blob x(1,1,8,8,TRANDN);
+    Blob dout(1,1,4,4,TRANDN);
+    vector<Blob*> in{&x};
+    Blob *out = NULL;
+    Param param;
+    param.setPoolParam(2,2,2);
+    PoolLayer::forward(in, &out, param);
+    x.print("x:\n");
+    (*out).print("out:\n");
+    vector<Blob*> grads;
+    PoolLayer::backward(&dout, in, grads, param);
+    Blob num_dx = Test::calcNumGradientBlobParam(in, &dout, param, PoolLayer::forward, TDX);
+    num_dx.print("num_dx:\n");
+    (*grads[0]).print("dx:\n");
+    cout << Test::relError(num_dx, *grads[0]) << endl;
+}
+
+void testRelu() {
+    Blob x(1,1,5,5,TRANDN);
+    Blob dout(1,1,5,5,TRANDN);
+    vector<Blob*> in{&x};
+    Blob *out = NULL;
+    //ReluLayer::forward(in, &out);
+    //x.print();
+    //(*out).print();
+    vector<Blob*> grads;
+    ReluLayer::backward(&dout, in, grads);
+    Blob num_dx = Test::calcNumGradientBlob(in, &dout, ReluLayer::forward, TDX);
+    num_dx.print();
+    (*grads[0]).print();
+    cout << Test::relError(num_dx, *grads[0]) << endl;
+}
+
 void testTest() {
     /*
     // check gradient
@@ -188,7 +223,9 @@ int main()
     //testArma();
     //testBlob();
     //testAffineLayer();
-    testConvLayer();
+    //testConvLayer();
+    //testPoolLayer();
+    testRelu();
     //testTest();
 
     return 0;

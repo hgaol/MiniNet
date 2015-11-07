@@ -284,6 +284,14 @@ Blob Blob::max(double val) {
     return out;
 }
 
+void Blob::maxIn(double val) {
+    assert(!data_.empty());
+    for (int i = 0; i < N_; ++i) {
+        (*this)[i].transform([val](double e) {return e > val ? e : val;});
+    }
+    return;
+}
+
 Blob Blob::abs() {
     assert(!data_.empty());
     Blob out(*this);
