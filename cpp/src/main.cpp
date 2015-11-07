@@ -9,6 +9,12 @@ using namespace arma;
 using namespace mini_net;
 
 void testArma() {
+    /*! test cude/vec/mat to blob */
+    vec va = linspace(1, 12, 12);
+    va.print();
+    vectorise(va).print();
+    mat mma = reshape(va, 2,6);
+    mma.print();
     // A * B, run!
     mat A = randu<mat>(5, 10);
     mat B = randu<mat>(10, 5);
@@ -117,18 +123,24 @@ void testTest() {
     num_da.print();
     */
 
-    /*! chech gradient mat */
+    /*! check gradient mat */
     // affine layer
-    Blob x(3,2,2,2,TRANDN);
+    Blob x(1,2,2,2,TRANDN);
     Blob w(2,2,2,2,TRANDN);
     Blob b(2,1,1,1,TRANDN);
-    Blob dout(3,2,1,1,TRANDN);
+    Blob dout(1,2,1,1,TRANDN);
     vector<Blob*> in{&x, &w, &b};
+    //Blob *oo = NULL;
+    //w.print();
+    //AffineLayer::forward(in, &oo);
     Blob num_dx = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDX);
     Blob num_dw = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDW);
     Blob num_db = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDB);
     vector<Blob*> grads;
     AffineLayer::backward(&dout, in, grads);
+    num_db.print("num_dw:\n");
+    (*grads[2]).print("dw:\n");
+
     cout << Test::relError(num_dx, *grads[0]) << endl;
     cout << Test::relError(num_dw, *grads[1]) << endl;
     cout << Test::relError(num_db, *grads[2]) << endl;

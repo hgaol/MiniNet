@@ -26,8 +26,16 @@ void AffineLayer::forward(const vector<Blob*>& in, Blob** out) {
     int N = in[0]->get_N();
     int F = in[1]->get_N();
     
-    *out = new Blob(N, F, 1, 1);
+    //*out = new Blob(N, F, 1, 1);
+
+    mat x = (*in[0]).reshape();
+    mat w = (*in[1]).reshape();
+    mat b = (*in[2]).reshape();
+    mat ans = x * w.t() + b.t();
+    mat2Blob(ans, out, F, 1, 1);
+    //(**out).print();
     //(*out)[0].print();
+    /*
     for (int i = 0; i < N; ++i) {
         for (int f = 0; f < F; ++f) {
             //(*in[0])[0].print();
@@ -39,6 +47,8 @@ void AffineLayer::forward(const vector<Blob*>& in, Blob** out) {
         }
         //(*out)[i].print("###");
     }
+    (**out).print();
+    */
 
     return;
 }
@@ -61,20 +71,27 @@ void AffineLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>
     int n = dout->get_N();
 
     Blob *pX = cache[0];
+    //(*pX).reshape().print("x\n");
     Blob *pW = cache[1];
+    //(*pW).reshape().print("w\n");
     Blob *pb = cache[2];
+    //(*pb).reshape().print("b\n");
+    //(*dout).reshape().print("dy\n");
 
     // calc grads
     // dX
     mat mat_dx = (*dout).reshape() * (*pW).reshape();
+    //mat_dx.print("dx\n");
     mat2Blob(mat_dx, &dX, (*pX).size());
     grads.push_back(dX);
     // dW
     mat mat_dw = (*dout).reshape().t() * (*pX).reshape();
+    //mat_dw.print("dw\n");
     mat2Blob(mat_dw, &dW, (*pW).size());
     grads.push_back(dW);
     // db
-    mat mat_db = (*dout).reshape().t() * mat(n, 1);
+    mat mat_db = (*dout).reshape().t() * mat(n, 1, fill::ones);
+    //mat_db.print("db\n");
     mat2Blob(mat_db, &db, (*pb).size());
     grads.push_back(db);
 

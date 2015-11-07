@@ -89,7 +89,7 @@ public:
                             Blob *fm = NULL;
                             func(in, &fm);
                             (*in[0])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm);
+                            Blob bb = (*fp - *fm) * (*dout);
                             double tmp = (bb / (2 * eps)).sum();
                             num_grad[n](h, w, c) = tmp;
                             delete fp;
@@ -106,7 +106,9 @@ public:
                             Blob *fm = NULL;
                             func(in, &fm);
                             (*in[1])[n](h, w, c) = old_val;
-                            num_grad[n](h, w, c) = ((*fp - *fm) / (2 * eps)).sum();
+                            Blob bb = (*fp - *fm) * (*dout);
+                            double tmp = (bb / (2 * eps)).sum();
+                            num_grad[n](h, w, c) = tmp;
                             delete fp;
                             delete fm;
                             fp = NULL;
@@ -121,7 +123,9 @@ public:
                             Blob *fm = NULL;
                             func(in, &fm);
                             (*in[2])[n](h, w, c) = old_val;
-                            num_grad[n](h, w, c) = ((*fp - *fm) / (2 * eps)).sum();
+                            Blob bb = (*fp - *fm) * (*dout);
+                            double tmp = (bb / (2 * eps)).sum();
+                            num_grad[n](h, w, c) = tmp;
                             delete fp;
                             delete fm;
                             fp = NULL;

@@ -245,7 +245,8 @@ mat Blob::reshape() {
     for (int i = 0; i < N_; ++i) {
         dst = join_slices(dst, data_[i]);
     }
-    return arma::reshape(vectorise(dst), N_, C_*H_*W_);
+    //return arma::reshape(vectorise(dst), N_, C_*H_*W_);
+    return arma::reshape(vectorise(dst), C_*H_*W_, N_).t();
 }
 
 double Blob::sum() {
