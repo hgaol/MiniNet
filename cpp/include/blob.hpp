@@ -10,6 +10,8 @@
 #include <armadillo>
 #include <vector>
 #include <assert.h>
+#include <iostream>
+#include <cstdio>
 
 using std::vector;
 using namespace arma;
@@ -94,12 +96,21 @@ public:
 
     //@brief: reshape [N,C,H,W] to [N,C*H*W]
     mat reshape();
+
+    /*! Element wise operation */
     // sum of all element in Blob
     double sum();
     /*! sum number of element*/
-    double sumElement();
+    double numElement();
     /*! element wise operation, if element is smaller than val, then set it equals to val*/
     Blob max(double val);
+    /*! element wise operation, return absolute value*/
+    Blob abs();
+
+    /*! find the max value in the blob */
+    double maxVal();
+    /*! print Blob */
+    void print(std::string s = "");
 
 private:
     int N_;

@@ -257,7 +257,7 @@ double Blob::sum() {
     return ans;
 }
 
-double Blob::sumElement() {
+double Blob::numElement() {
     return N_ * C_ * H_ * W_;
 }
 
@@ -265,8 +265,38 @@ Blob Blob::max(double val) {
     assert(!data_.empty());
     Blob out(*this);
     for (int i = 0; i < N_; ++i) {
-        out[i].transform([](double ev) {return ev;});
+        out[i].transform([val](double e) {return e > val ? e : val;});
     }
+    return out;
+}
+
+Blob Blob::abs() {
+    assert(!data_.empty());
+    Blob out(*this);
+    for (int i = 0; i < N_; ++i) {
+        out[i].transform([](double e) {return fabs(e);});
+    }
+    return out;
+}
+
+double Blob::maxVal() {
+    assert(!data_.empty());
+    double ans = data_[0].max();
+    for (int i = 1; i < N_; ++i) {
+        double tmp = data_[i].max();
+        ans = std::max(ans, tmp);
+    }
+    return ans;
+}
+
+void Blob::print(std::string s) {
+    assert(!data_.empty());
+    cout << s << endl;
+    for (int i = 0; i < N_; ++i) {
+        printf("N = %d\n", i);
+        (*this)[i].print();
+    }
+    return;
 }
 
 } // namespace mini_net

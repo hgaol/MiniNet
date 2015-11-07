@@ -43,8 +43,16 @@ void testArma() {
     cout << a(0,0,1);
 }
 void testBlob() {
+    /*! test sum() abs()*/
+    Blob oa(2,2,2,2,TRANDU);
+    oa.print();
+    oa.max(0.5).print();
+    Blob oc(2,2,2,2,TRANDN);
+    oc.print();
+    oc.abs().print();
+    cout << oc.maxVal() << endl;
+
     /*! test operation */
-    Blob oa(2,2,2,2,TONES);
     Blob ob(2,2,2,2,TONES);
     (oa - ob)[0].print();
     (oa + ob)[0].print();
@@ -109,7 +117,7 @@ void testTest() {
     num_da.print();
     */
 
-    /* chech gradient mat */
+    /*! chech gradient mat */
     // affine layer
     Blob x(3,2,2,2,TRANDN);
     Blob w(2,2,2,2,TRANDN);
@@ -121,9 +129,9 @@ void testTest() {
     Blob num_db = Test::calcNumGradientBlob(in, &dout, AffineLayer::forward, TDB);
     vector<Blob*> grads;
     AffineLayer::backward(&dout, in, grads);
-    cout << (num_dx - *grads[0]).sum() << endl;
-    cout << (num_dw - *grads[1]).sum() << endl;
-    cout << (num_db - *grads[2]).sum() << endl;
+    cout << Test::relError(num_dx, *grads[0]) << endl;
+    cout << Test::relError(num_dw, *grads[1]) << endl;
+    cout << Test::relError(num_db, *grads[2]) << endl;
 
     return;
 }

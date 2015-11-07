@@ -139,8 +139,11 @@ public:
         return as_scalar(a * x);
     }
 
-    static double relError(Blob& X, Blob& y) {
-        
+    static double relError(Blob& X, Blob& Y, double eps = 1e-8) {
+        Blob up = (X - Y).abs();
+        Blob down = (X.abs() + Y.abs()).max(eps);
+        Blob lhs = up / down;
+        return lhs.maxVal();
     }
 };
 
