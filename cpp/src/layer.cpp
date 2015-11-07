@@ -98,6 +98,120 @@ void AffineLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>
     return;
 }
 
+/*!
+* \brief convolutional layer forward
+*             X:        [N, C, Hx, Wx]
+*             weight:   [F, C, Hw, Ww]
+*             bias:     [F, 1, 1, 1]
+*             out:      [N, F, (Hx+pad*2-Hw)/stride+1, (Wx+pad*2-Ww)/stride+1]
+* \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:weights, in[2]:bias
+* \param[in]  const ConvParam* param        conv params: stride, pad
+* \param[out] Blob** out                    Y
+*/
+void ConvLayer::forward(const vector<Blob*>& in, Blob** out, Param& param) {
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    assert((*in[0]).get_C() == (*in[1]).get_C());
+    int N = (*in[0]).get_N();
+    int F = (*in[1]).get_N();
+    int C = (*in[0]).get_C();
+    int Hx = (*in[0]).get_H();
+    int Wx = (*in[0]).get_W();
+    int Hw = (*in[1]).get_H();
+    int Ww = (*in[1]).get_W();
+
+    // calc Hy, Wy
+    int Hy = (Hx + param.conv_pad*2 -Hw) / param.conv_stride + 1;
+    int Wy = (Wx + param.conv_pad*2 -Ww) / param.conv_stride + 1;
+    
+    *out = new Blob(N, F, Hy, Wy);
+    Blob padX = (*in[0]).pad(param.conv_pad);
+
+    for (int n = 0; n < N; ++n) {
+        for (int f = 0; f < F; ++f) {
+            for (int hh = 0; hh < Hy; ++hh) {
+                for (int ww = 0; ww < Wy; ++ww) {
+                    cube window = padX[n](span(hh * param.conv_stride, hh * param.conv_stride + Hw - 1),
+                                            span(ww * param.conv_stride, ww * param.conv_stride + Ww - 1),
+                                            span::all);
+                    (**out)[n](hh, ww, f) = accu(window % (*in[1])[f]) + as_scalar((*in[2])[f]);
+                    //cout << accu(window % (*in[1])[f]) << endl;
+                }
+            }
+        }
+    }
+    return;
+}
+
+/*!
+* \brief backward
+*             in:       [N, C, Hx, Wx]
+*             weight:   [F, C, Hw, Ww]
+*             bias:     [F, 1, 1, 1]
+*             out:      [N, F, (Hx+pad*2-Hw)/stride+1, (Wx+pad*2-Ww)/stride+1]
+* \param[in]  const Blob* dout              dout
+* \param[in]  const vector<Blob*>& cache    cache[0]:X, cache[1]:weights, cache[2]:bias
+* \param[out] vector<Blob*>& grads          grads[0]:dX, grads[1]:dW, grads[2]:db
+*/
+void ConvLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param) {
+    int N = (*cache[0]).get_N();
+    int F = (*cache[1]).get_N();
+    int C = (*cache[0]).get_C();
+    int Hx = (*cache[0]).get_H();
+    int Wx = (*cache[0]).get_W();
+    int Hw = (*cache[1]).get_H();
+    int Ww = (*cache[1]).get_W();
+    int Hy = (*dout).get_H();
+    int Wy = (*dout).get_W();
+    assert(C == (*cache[1]).get_C());
+    assert(F == (*cache[2]).get_N());
+    if (!grads.empty()) {
+        grads.clear();
+    }
+    Blob *dX = new Blob(cache[0]->size(), TZEROS);
+    Blob *dW = new Blob(cache[1]->size(), TZEROS);
+    Blob *db = new Blob(cache[2]->size(), TZEROS);
+
+    Blob pad_dX(N, C, Hx + param.conv_pad*2, Wx + param.conv_pad*2, TZEROS);
+    Blob pad_X = (*cache[0]).pad(1);
+
+    for (int n = 0; n < N; ++n) {
+        for (int f = 0; f < F; ++f) {
+            for (int hh = 0; hh < Hy; ++hh) {
+                for (int ww = 0; ww < Wy; ++ww) {
+                    cube window = pad_X[n](span(hh * param.conv_stride,  hh * param.conv_stride + Hw - 1),
+                                            span(ww * param.conv_stride, ww * param.conv_stride + Ww - 1),
+                                            span::all);
+                    //window.print("window:\n");
+                    //cout << (*db)[f](0, 0, 0) << endl;
+                    (*db)[f](0, 0, 0) += (*dout)[n](hh, ww, f);
+                    //cout << (*db)[f](0, 0, 0) << endl;
+                    //(*dW)[f].print("W before:\n");
+                    (*dW)[f] += window * (*dout)[n](hh, ww, f);
+                    //(*dW)[f].print("W after:\n");
+                    //pad_dX[n](span(hh * param.stride, hh * param.stride + Hw - 1),
+                    //    span(ww * param.stride, ww * param.stride + Ww - 1),
+                    //    span::all).print("X before:\n");
+                    pad_dX[n](span(hh * param.conv_stride, hh * param.conv_stride + Hw - 1),
+                        span(ww * param.conv_stride, ww * param.conv_stride + Ww - 1),
+                        span::all) += (*cache[1])[f] * (*dout)[n](hh, ww, f);
+                    //pad_dX[n](span(hh * param.stride, hh * param.stride + Hw - 1),
+                    //    span(ww * param.stride, ww * param.stride + Ww - 1),
+                    //    span::all).print("X after:\n");
+                }
+            }
+        }
+    }
+    *dX = pad_dX.dePad(param.conv_pad);
+    grads.push_back(dX);
+    grads.push_back(dW);
+    grads.push_back(db);
+
+    return;
+}
+
  //TODO
 
 } //namespace mini_net

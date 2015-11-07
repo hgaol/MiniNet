@@ -3,12 +3,12 @@
 #include "../include/blob.hpp"
 #include "../include/layer.hpp"
 #include "../include/test.hpp"
-//#include "test.cpp"
 
 using namespace arma;
 using namespace mini_net;
 
 void testArma() {
+    /*! test conv */
     /*! test cude/vec/mat to blob */
     vec va = linspace(1, 12, 12);
     va.print();
@@ -49,8 +49,11 @@ void testArma() {
     cout << a(0,0,1);
 }
 void testBlob() {
+    /*! test pad() */
+    Blob oa(2,2,2,2,TONES);
+    oa.pad(1, 0).print();
+
     /*! test sum() abs()*/
-    Blob oa(2,2,2,2,TRANDU);
     oa.print();
     oa.max(0.5).print();
     Blob oc(2,2,2,2,TRANDN);
@@ -110,6 +113,36 @@ void testAffineLayer() {
     AffineLayer::backward(out, vblob, grads);
 }
 
+void testConvLayer() {
+    Blob x(4,3,5,5,TRANDN);
+    Blob w(2,3,3,3,TRANDN);
+    Blob b(2,1,1,1,TRANDN);
+    Blob dout(4,2,5,5,TRANDN);
+    Param param;
+    param.setConvParam(1,1);
+    vector<Blob*> in{&x, &w, &b};
+    //Blob *out = NULL;
+    //ConvLayer::forward(in, &out, param);
+    //(*out).print();
+    vector<Blob*> grads;
+    ConvLayer::backward(&dout, in, grads, param);
+
+    /*! test num_grads */
+    Blob num_dx = Test::calcNumGradientBlobParam(in, &dout, param, ConvLayer::forward, TDX);
+    Blob num_dw = Test::calcNumGradientBlobParam(in, &dout, param, ConvLayer::forward, TDW);
+    Blob num_db = Test::calcNumGradientBlobParam(in, &dout, param, ConvLayer::forward, TDB);
+    //vector<Blob*> grads;
+    //ConvLayer::backward(&dout, in, grads, param);
+    num_db.print("num_dw:\n");
+    (*grads[2]).print("dw:\n");
+
+    cout << Test::relError(num_dx, *grads[0]) << endl;
+    cout << Test::relError(num_dw, *grads[1]) << endl;
+    cout << Test::relError(num_db, *grads[2]) << endl;
+
+    return;
+}
+
 void testTest() {
     /*
     // check gradient
@@ -124,6 +157,7 @@ void testTest() {
     */
 
     /*! check gradient mat */
+    /*
     // affine layer
     Blob x(1,2,2,2,TRANDN);
     Blob w(2,2,2,2,TRANDN);
@@ -144,6 +178,7 @@ void testTest() {
     cout << Test::relError(num_dx, *grads[0]) << endl;
     cout << Test::relError(num_dw, *grads[1]) << endl;
     cout << Test::relError(num_db, *grads[2]) << endl;
+    */
 
     return;
 }
@@ -153,7 +188,8 @@ int main()
     //testArma();
     //testBlob();
     //testAffineLayer();
-    testTest();
+    testConvLayer();
+    //testTest();
 
     return 0;
 }

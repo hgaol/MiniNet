@@ -50,13 +50,14 @@ public:
     Blob() : N_(0), C_(0), H_(0), W_(0), data_(NULL) {}
     explicit Blob(const int n, const int c, const int h, const int w, int type = TDEFAULT);
     explicit Blob(const int n, const int c, const int h, const int w, const double eps);
-    explicit Blob(const vector<int>& shape);
+    explicit Blob(const vector<int>& shape, int type = TDEFAULT);
     explicit Blob(const vector<int>& shape, const double eps);
     ~Blob() {}
 
     // need set shape later sometimes, like in test.hpp func[calcNumGradientBlob]
     void setShape(vector<int>& shape);
     cube& operator[] (int i);
+    Blob& operator= (double num);
     friend Blob operator+(Blob& A, const double num);
     friend Blob operator+(const double num, Blob& A);
     friend Blob operator+(Blob& A, Blob& B);
@@ -109,6 +110,9 @@ public:
 
     /*! find the max value in the blob */
     double maxVal();
+    
+    Blob pad(int p, double val = 0);
+    Blob dePad(int p);
     /*! print Blob */
     void print(std::string s = "");
 
@@ -118,15 +122,6 @@ private:
     int H_;
     int W_;
     vector<cube> data_;
-};
-
-// struct Param
-struct Param {
-    // conv param
-    int stride;
-    int pad;
-    int width;
-    int height;
 };
 
 } // namespace MiniNet

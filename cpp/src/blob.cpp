@@ -216,9 +216,15 @@ Blob::Blob(const int n, const int c, const int h, const int w, const double eps)
     data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
     return;
 }
-Blob::Blob(const vector<int>& shape) :
+
+Blob::Blob(const vector<int>& shape, int type) :
         N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-    data_ = vector<cube>(N_, cube(H_, W_, C_));
+    if (type == TNONE)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::none));
+    if (type == TONES)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::ones));
+    if (type == TZEROS) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
+    if (type == TRANDU) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randu));
+    if (type == TRANDN) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn));
+    if (type == TDEFAULT) data_ = vector<cube>(N_, cube(H_, W_, C_));
     return;
 }
 Blob::Blob(const vector<int>& shape, const double eps) :
@@ -229,6 +235,13 @@ Blob::Blob(const vector<int>& shape, const double eps) :
 
 cube& Blob::operator[] (int i) {
     return data_[i];
+}
+Blob& Blob::operator= (double num) {
+    assert(!data_.empty());
+    for (int i = 0; i < N_; ++i) {
+        (*this)[i].fill(num);
+    }
+    return *this;
 }
 
 vector<int> Blob::size() {
@@ -288,6 +301,40 @@ double Blob::maxVal() {
         ans = std::max(ans, tmp);
     }
     return ans;
+}
+
+Blob Blob::pad(int p, double val) {
+    assert(!data_.empty());
+    Blob out(N_, C_, H_ + p*2, W_ + p*2);
+    out = val;
+
+    for (int n = 0; n < N_; ++n) {
+        for (int c = 0; c < C_; ++c) {
+            for (int h = 0; h < H_; ++h) {
+                for (int w = 0; w < W_; ++w) {
+                    out[n](p+h, p+w, c) = (*this)[n](h, w, c);
+                }
+            }
+        }
+    }
+    return out;
+}
+
+Blob Blob::dePad(int p) {
+    assert(!data_.empty());
+    Blob out(N_, C_, H_ - p*2, W_ - p*2);
+
+    for (int n = 0; n < N_; ++n) {
+        //out[n] = (*this)[n](span(p, H_-p), span(p, W_-p), span::all);
+        for (int c = 0; c < C_; ++c) {
+            for (int h = p; h < H_-p; ++h) {
+                for (int w = p; w < W_-p; ++w) {
+                    out[n](h-p, w-p, c) = (*this)[n](h, w, c);
+                }
+            }
+        }
+    }
+    return out;
 }
 
 void Blob::print(std::string s) {
