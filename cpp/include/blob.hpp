@@ -107,6 +107,10 @@ public:
     Blob max(double val);
     /*! element wise operation, change data_ */
     void maxIn(double val);
+    /*! element wise operation, change data_, if e = e < val ? 1 : 0; */
+    void smallerIn(double val);
+    /*! element wise operation, change data_, if e = e > val ? 1 : 0; */
+    void biggerIn(double val);
     /*! element wise operation, return absolute value*/
     Blob abs();
 

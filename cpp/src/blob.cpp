@@ -185,6 +185,7 @@ Blob& Blob::operator*=(const double num) {
     }
     return *this;
 }
+
 Blob& Blob::operator/=(const double num) {
     for (int i=0; i<N_; ++i) {
         data_[i] = data_[i] / num;
@@ -288,6 +289,24 @@ void Blob::maxIn(double val) {
     assert(!data_.empty());
     for (int i = 0; i < N_; ++i) {
         (*this)[i].transform([val](double e) {return e > val ? e : val;});
+    }
+    return;
+}
+
+/*! element wise operation, change data_, if e = e < val ? 1 : 0; */
+void Blob::smallerIn(double val) {
+    assert(!data_.empty());
+    for (int i = 0; i < N_; ++i) {
+        (*this)[i].transform([val](double e) {return e < val ? 1 : 0;});
+    }
+    return;
+}
+
+/*! element wise operation, change data_, if e = e > val ? 1 : 0; */
+void Blob::biggerIn(double val) {
+    assert(!data_.empty());
+    for (int i = 0; i < N_; ++i) {
+        (*this)[i].transform([val](double e) {return e > val ? 1 : 0;});
     }
     return;
 }

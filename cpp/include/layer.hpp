@@ -15,14 +15,14 @@ namespace mini_net {
 /*! layer parameters */
 struct Param {
     Param() : conv_stride(0), conv_pad(0) {}
-    /*! conv param */
+    /*! \brief conv param */
     int conv_stride;
     int conv_pad;
     inline void setConvParam(int s, int p) {
         conv_stride = s;
         conv_pad = p;
     }
-    /*! pool param */
+    /*! \brief pool param */
     int pool_stride;
     int pool_width;
     int pool_height;
@@ -30,6 +30,19 @@ struct Param {
         pool_stride = s;
         pool_width = w;
         pool_height = h;
+    }
+    /*! \brief dropout param */
+    /*! if the most right bit is 1 use train mode, else use test mode;
+     *  if the second bit from right is 1, use random seed; else use selected seed. */
+    int drop_mode;
+    double drop_p;
+    int drop_seed;
+    Blob *drop_mask;
+    inline void setDropoutpParam(int mode, double pp, int s) {
+        drop_mode = mode;
+        drop_p = pp;
+        drop_seed = s;
+        drop_mask = NULL;
     }
 };
 
@@ -152,6 +165,34 @@ public:
     * \param[out] vector<Blob*>& grads          grads[0]:dX
     */
     static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads);
+};
+
+/*!
+* \brief ReLU Layer
+*/
+class DropoutLayer {
+public:
+    DropoutLayer() {}
+    ~DropoutLayer() {}
+
+    /*!
+    * \brief forward
+    *             X:        [N, C, Hx, Wx]
+    *             out:      [N, C, Hx, Wx]
+    * \param[in]  const vector<Blob*>& in       in[0]:X
+    * \param[out] Blob& out                     Y
+    */
+    static void forward(const vector<Blob*>& in, Blob** out, Param& param);
+
+    /*!
+    * \brief backward
+    *             in:       [N, C, Hx, Wx]
+    *             dout:     [N, F, Hx, Wx]
+    * \param[in]  const Blob* dout              dout
+    * \param[in]  const vector<Blob*>& cache    cache[0]:X
+    * \param[out] vector<Blob*>& grads          grads[0]:dX
+    */
+    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
 };
 
 } // namespace mini_net

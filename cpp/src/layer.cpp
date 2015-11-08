@@ -344,4 +344,67 @@ void ReluLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& 
     return;
 }
 
+/*!
+* \brief forward
+*             X:        [N, C, Hx, Wx]
+*             out:      [N, C, Hx, Wx]
+* \param[in]  const vector<Blob*>& in       in[0]:X
+* \param[in]  Param& param                  int mode, double p, int seed, Blob *mask
+* \param[out] Blob& out                     Y
+*/
+void DropoutLayer::forward(const vector<Blob*>& in, Blob** out, Param& param) {
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    int mode = param.drop_mode;
+    double p = param.drop_p;
+    assert(0 <= p && p <= 1);
+    assert(0 <= mode && mode <= 3);
+    int seed;
+    /*! train mode */
+    if ((mode & 1) == 1) {
+        if ((mode & 2) == 2) {
+            seed = param.drop_seed;
+            arma_rng::set_seed(seed);
+        }
+        Blob *mask = new Blob(in[0]->size(), TRANDU);
+        //(*mask).print("maks\n");
+        (*mask).smallerIn(p);
+        //(*mask).print("maks\n");
+        //(*in[0]).print("X:\n");
+        *out = new Blob(*in[0] * (*mask) / p);
+        //(**out).print("out\n");
+        if (param.drop_mask) {
+            delete param.drop_mask;
+        }
+        param.drop_mask = mask;
+    }
+    else {
+        /*! test mode */
+        *out = new Blob(*in[0]);
+    }
+    return;
+}
+
+/*!
+* \brief backward
+*             in:       [N, C, Hx, Wx]
+*             dout:     [N, F, Hx, Wx]
+* \param[in]  const Blob* dout              dout
+* \param[in]  const vector<Blob*>& cache    cache[0]:X
+* \param[in]  Param& param                  int mode, double p, int seed, Blob *mask
+* \param[out] vector<Blob*>& grads          grads[0]:dX
+*/
+void DropoutLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param) {
+    Blob *dX = new Blob((*dout));
+    int mode = param.drop_mode;
+    assert(0 <= mode && mode <= 3);
+    if ((mode & 1) == 1) {
+        *dX = (*dX) * (*param.drop_mask) / param.drop_p;
+    }
+    grads.push_back(dX);
+    return;
+}
+
 } //namespace mini_net

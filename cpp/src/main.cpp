@@ -8,7 +8,15 @@ using namespace arma;
 using namespace mini_net;
 
 void testArma() {
-    /*! test conv */
+    /*! test randn/randu seed */
+    //arma_rng::set_seed(123);
+    arma_rng::set_seed_random();
+    cube cca(5,5,1,fill::randn);
+    cca.print();
+    //arma_rng::set_seed(123);
+    arma_rng::set_seed_random();
+    cube ccb(5,5,1,fill::randn);
+    ccb.print();
     /*! test cude/vec/mat to blob */
     vec va = linspace(1, 12, 12);
     va.print();
@@ -178,6 +186,23 @@ void testRelu() {
     cout << Test::relError(num_dx, *grads[0]) << endl;
 }
 
+void testDropout() {
+    Blob x(1,1,5,5,TRANDN);
+    Blob dout(1,1,5,5,TRANDN);
+    vector<Blob*> in{&x};
+    Blob *out = NULL;
+    Param param;
+    param.setDropoutpParam(3, 0.5, 123);
+    vector<Blob*> grads;
+    //DropoutLayer::forward(in, &out, param);
+    //DropoutLayer::backward(&dout, in, grads, param);
+    Blob num_dx = Test::calcNumGradientBlobParam(in, &dout, param, DropoutLayer::forward, TDX);
+    DropoutLayer::backward(&dout, in, grads, param);
+    num_dx.print();
+    (*grads[0]).print();
+    cout << Test::relError(num_dx, *grads[0]) << endl;
+}
+
 void testTest() {
     /*
     // check gradient
@@ -225,7 +250,8 @@ int main()
     //testAffineLayer();
     //testConvLayer();
     //testPoolLayer();
-    testRelu();
+    //testRelu();
+    testDropout();
     //testTest();
 
     return 0;
