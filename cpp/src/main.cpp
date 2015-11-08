@@ -229,7 +229,23 @@ void testSoftmax() {
 }
 
 void testSVM() {
-
+    Blob x(10, 8, 1, 1, TRANDU);
+    //x.reshape().print();
+    mat aa = randi<mat>(10, 1, distr_param(0, 7));
+    mat bb(10, 8, fill::zeros);
+    for (int i = 0; i < 10; ++i) {
+        bb(i, (uword)aa(i, 0)) = 1;
+    }
+    //bb.print("bb\n");
+    Blob *y = NULL;
+    mat2Blob(bb, &y, x.size());
+    vector<Blob*> in{&x, y};
+    double loss;
+    Blob *out = NULL;
+    SVMLossLayer::go(in, loss, &out);
+    //(*out).print();
+    Blob num_dx = Test::calcNumGradientBlobLoss(in, SVMLossLayer::go);
+    cout << Test::relError(num_dx, *out) << endl;
 }
 
 void testTest() {

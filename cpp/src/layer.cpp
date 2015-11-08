@@ -455,9 +455,53 @@ void SoftmaxLossLayer::go(const vector<Blob*>& in, double& loss, Blob** out, int
     return;
 }
 
-void SVMLossLayer::go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0) {
+/*!
+* \brief forward
+*             X:        [N, C, 1, 1], usually the output of affine(fc) layer
+*             Y:        [N, C, 1, 1], ground truth, with 1(true) or 0(false)
+* \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:Y
+* \param[out] double& loss                  loss
+* \param[out] Blob** out                    out: dX
+* \param[in]  int mode                      1: only forward, 0:forward and backward
+*/
+void SVMLossLayer::go(const vector<Blob*>& in, double& loss, Blob** out, int mode) {
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    /*! let delta equals to 1 */
+    double delta = 0.2;
+    int N = in[0]->get_N();
+    int C = in[0]->get_C();
+    mat mat_x = (*in[0]).reshape();
+    //mat_x.print("mat_x;\n");
+    mat mat_y = (*in[1]).reshape();
+    //mat_y.print("mat_y;\n");
 
+    /*! forward */
+    mat good_x = repmat(arma::sum(mat_x % mat_y, 1), 1, C);
+    //good_x.print("good_x:\n");
+    mat mat_loss = (mat_x - good_x + delta);
+    //mat_loss.print("mat_loss\n");
+    mat_loss.transform([](double e) {return e > 0 ? e : 0;});
+    //mat_loss.print("mat_loss > 0:\n");
+    mat_y.transform([](double e) {return e ? 0 : 1;});
+    ////mat_y.print();
+    mat_loss %= mat_y;
+    loss = accu(mat_loss) / N;
+    if (mode == 1)
+        return;
+
+    /*! backward */
+    mat dx(mat_loss);
+    dx.transform([](double e) {return e ? 1 : 0;});
+    //dx.print("dx:\n");
+    mat_y.transform([](double e) {return e ? 0 : 1;});
+    mat sum_x = repmat(arma::sum(dx, 1), 1, C) % mat_y;
+    //sum_x.print("sum_x:\n");
+    dx = (dx - sum_x) / N;
+    mat2Blob(dx, out, in[0]->size());
+    return;
 }
 
 } //namespace mini_net
-
