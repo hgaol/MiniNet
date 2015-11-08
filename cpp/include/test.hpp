@@ -63,6 +63,41 @@ public:
     }
 
     template<typename _Tp>
+    static Blob calcNumGradientBlobLoss(vector<Blob*>& in, _Tp func, double eps = 1e-6) {
+
+        Blob num_grad(in[0]->size());
+
+        int N = num_grad.get_N();
+        int C = num_grad.get_C();
+        int H = num_grad.get_H();
+        int W = num_grad.get_W();
+        /*! only forward */
+        int mode = 1;
+        /*! fake */
+        Blob *out = NULL;
+
+        for (int n = 0; n < N; ++n) {
+            for (int c = 0; c < C; ++c) {
+                for (int h = 0; h < H; ++h) {
+                    for (int w = 0; w < W; ++w) {
+                        double old_val = (*in[0])[n](h, w, c);
+                        (*in[0])[n](h, w, c) = old_val + eps;
+                        double fp;
+                        func(in, fp, &out, 1);
+                        (*in[0])[n](h, w, c) = old_val - eps;
+                        double fm;
+                        func(in, fm, &out, 1);
+                        (*in[0])[n](h, w, c) = old_val;
+                        double tmp = (fp - fm) / (2 * eps);
+                        num_grad[n](h, w, c) = tmp;
+                    }
+                }
+            }
+        }
+        return num_grad;
+    }
+
+    template<typename _Tp>
     static Blob calcNumGradientBlob(vector<Blob*>& in, Blob* dout, _Tp func, TestType type, double eps = 1e-6) {
         
         Blob num_grad;

@@ -204,33 +204,13 @@ void Blob::setShape(vector<int>& shape) {
 }
 Blob::Blob(const int n, const int c, const int h, const int w, int type) :
         N_(n), C_(c), H_(h), W_(w) {
-    if (type == TNONE)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::none));
-    if (type == TONES)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::ones));
-    if (type == TZEROS) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
-    if (type == TRANDU) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randu));
-    if (type == TRANDN) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn));
-    if (type == TDEFAULT) data_ = vector<cube>(N_, cube(H_, W_, C_));
-    return;
-}
-Blob::Blob(const int n, const int c, const int h, const int w, const double eps):
-        N_(n), C_(c), H_(h), W_(w) {
-    data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
+    _init(n, c, h, w, type);
     return;
 }
 
 Blob::Blob(const vector<int>& shape, int type) :
         N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-    if (type == TNONE)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::none));
-    if (type == TONES)  data_ = vector<cube>(N_, cube(H_, W_, C_, fill::ones));
-    if (type == TZEROS) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::zeros));
-    if (type == TRANDU) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randu));
-    if (type == TRANDN) data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn));
-    if (type == TDEFAULT) data_ = vector<cube>(N_, cube(H_, W_, C_));
-    return;
-}
-Blob::Blob(const vector<int>& shape, const double eps) :
-        N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
-    data_ = vector<cube>(N_, cube(H_, W_, C_, fill::randn) * eps);
+    _init(N_, C_, H_, W_, type);
     return;
 }
 
@@ -370,6 +350,28 @@ void Blob::print(std::string s) {
     for (int i = 0; i < N_; ++i) {
         printf("N = %d\n", i);
         (*this)[i].print();
+    }
+    return;
+}
+
+void Blob::_init(int n, int c, int h, int w, int type) {
+    if (type == TONES) {
+        data_ = vector<cube>(n, cube(h, w, c, fill::ones));
+        return;
+    }
+    if (type == TZEROS) {
+        data_ = vector<cube>(n, cube(h, w, c, fill::zeros));
+        return;
+    }
+    if (type == TDEFAULT) {
+        data_ = vector<cube>(n, cube(h, w, c));
+        return;
+    }
+    for (int i = 0; i < n; ++i) {
+        cube tmp;
+        if (type == TRANDU) tmp = randu<cube>(h, w, c);
+        if (type == TRANDN) tmp = randn<cube>(h, w, c);
+        data_.push_back(tmp);
     }
     return;
 }

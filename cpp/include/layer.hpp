@@ -168,7 +168,7 @@ public:
 };
 
 /*!
-* \brief ReLU Layer
+* \brief Dropout Layer
 */
 class DropoutLayer {
 public:
@@ -193,6 +193,46 @@ public:
     * \param[out] vector<Blob*>& grads          grads[0]:dX
     */
     static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+};
+
+/*!
+* \brief Softmax Loss Layer
+*/
+class SoftmaxLossLayer {
+public:
+    SoftmaxLossLayer() {}
+    ~SoftmaxLossLayer() {}
+
+    /*!
+    * \brief forward
+    *             X:        [N, C, 1, 1], usually the output of affine(fc) layer
+    *             Y:        [N, C, 1, 1], ground truth, with 1(true) or 0(false)
+    * \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:Y
+    * \param[out] double& loss                  loss
+    * \param[out] Blob** out                    out: dX
+    * \param[in]  int mode                      1: only forward, 0:forward and backward
+    */
+    static void go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0);
+};
+
+/*!
+* \brief SVM Loss Layer
+*/
+class SVMLossLayer {
+public:
+    SVMLossLayer() {}
+    ~SVMLossLayer() {}
+
+    /*!
+    * \brief forward
+    *             X:        [N, C, 1, 1], usually the output of affine(fc) layer
+    *             Y:        [N, C, 1, 1], ground truth, with 1(true) or 0(false)
+    * \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:Y
+    * \param[out] double& loss                  loss
+    * \param[out] Blob** out                    out: dX
+    * \param[in]  int mode                      1: only forward, 0:forward and backward
+    */
+    static void go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0);
 };
 
 } // namespace mini_net

@@ -407,4 +407,57 @@ void DropoutLayer::backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*
     return;
 }
 
+/*!
+* \brief forward
+*             X:        [N, C, 1, 1], usually the output of affine(fc) layer
+*             Y:        [N, C, 1, 1], ground truth, with 1(true) or 0(false)
+* \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:Y
+* \param[out] double& loss                  loss
+* \param[out] Blob** out                    out: dX
+*/
+void SoftmaxLossLayer::go(const vector<Blob*>& in, double& loss, Blob** out, int mode) {
+    Blob X(*in[0]);
+    Blob Y(*in[1]);
+    if (*out) {
+        delete *out;
+        *out = NULL;
+    }
+    int N = (*in[0]).get_N();
+    int C = (*in[0]).get_C();
+    int H = (*in[0]).get_H();
+    int W = (*in[0]).get_W();
+    assert(H == 1 && W == 1);
+
+    mat mat_x = X.reshape();
+    //mat_x.print();
+    mat mat_y = Y.reshape();
+    //mat_y.print();
+
+    /*! forward */
+    mat row_max = repmat(arma::max(mat_x, 1), 1, C);
+    //row_max.print("row_max\n");
+    mat_x = arma::exp(mat_x - row_max);
+    mat row_sum = repmat(arma::sum(mat_x, 1), 1, C);
+    mat e = mat_x / row_sum;
+    mat prob = -arma::log(e);
+    //prob.print("prob:\n");
+    //mat_y.print("y:\n");
+    /*! loss should near 2.3026 */
+    loss = accu(prob % mat_y) / N;
+    /*! only forward */
+    if (mode == 1)
+        return;
+
+    /*! backward */
+    mat dx = e - mat_y;
+    dx /= N;
+    mat2Blob(dx, out, (*in[0]).size());
+    return;
+}
+
+void SVMLossLayer::go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0) {
+
+}
+
 } //namespace mini_net
+

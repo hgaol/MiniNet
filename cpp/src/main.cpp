@@ -58,6 +58,11 @@ void testArma() {
 }
 
 void testBlob() {
+    /*! random problem */
+    Blob aaa(4,2,2,2,TRANDN);
+    aaa.reshape().print();
+    Blob aab(4,2,2,2,TRANDU);
+    aab.reshape().print();
     /*! test pad() */
     Blob oa(2,2,2,2,TONES);
     oa.pad(1, 0).print();
@@ -203,6 +208,30 @@ void testDropout() {
     cout << Test::relError(num_dx, *grads[0]) << endl;
 }
 
+void testSoftmax() {
+    Blob x(10,8,1,1,TRANDU);
+    //x.reshape().print();
+    mat aa = randi<mat>(10, 1, distr_param(0,7));
+    mat bb(10,8,fill::zeros);
+    for (int i = 0; i < 10; ++i) {
+        bb(i, (uword)aa(i,0)) = 1;
+    }
+    //bb.print("bb\n");
+    Blob *y = NULL;
+    mat2Blob(bb, &y, x.size());
+    vector<Blob*> in{&x, y};
+    double loss;
+    Blob *out = NULL;
+    SoftmaxLossLayer::go(in, loss, &out);
+    //(*out).print();
+    Blob num_dx = Test::calcNumGradientBlobLoss(in, SoftmaxLossLayer::go);
+    cout << Test::relError(num_dx, *out) << endl;
+}
+
+void testSVM() {
+
+}
+
 void testTest() {
     /*
     // check gradient
@@ -251,8 +280,17 @@ int main()
     //testConvLayer();
     //testPoolLayer();
     //testRelu();
-    testDropout();
+    //testDropout();
+    //testSoftmax();
+    testSVM();
     //testTest();
+    //int n = 3;
+    //while (n--) {
+    //    mat a(5,5,fill::randn);
+    //    a.print("a\n");
+    //}
+    //Blob b(4,2,2,2,TRANDN);
+    //b.reshape().print();
 
     return 0;
 }
