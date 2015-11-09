@@ -8,7 +8,9 @@
 #define MINI_NET_LAYER_HPP_
 
 #include "blob.hpp"
+#include <memory>
 using std::vector;
+using std::shared_ptr;
 
 namespace mini_net {
 
@@ -37,12 +39,12 @@ struct Param {
     int drop_mode;
     double drop_p;
     int drop_seed;
-    Blob *drop_mask;
+    shared_ptr<Blob> drop_mask;
     inline void setDropoutpParam(int mode, double pp, int s) {
         drop_mode = mode;
         drop_p = pp;
         drop_seed = s;
-        drop_mask = NULL;
+        drop_mask.reset();
     }
 };
 
@@ -53,6 +55,7 @@ class AffineLayer {
 public:
     AffineLayer() {}
     ~AffineLayer() {}
+
     /*!
     * \brief forward
     *             X:        [N, C, Hx, Wx]
@@ -62,7 +65,8 @@ public:
     * \param[in]  const vector<Blob*>& in       in[0]:X, in[1]:weights, in[2]:bias
     * \param[out] Blob& out                     Y
     */
-    static void forward(const vector<Blob*>& in, Blob** out);
+    static void forward(const vector<shared_ptr<Blob>>& in,
+                        shared_ptr<Blob>& out);
 
     /*!
     * \brief backward
@@ -74,7 +78,9 @@ public:
     * \param[in]  const vector<Blob*>& cache    cache[0]:X, cache[1]:weights, cache[2]:bias
     * \param[out] vector<Blob*>& grads          grads[0]:dX, grads[1]:dW, grads[2]:db
     */
-    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads);
+    static void backward(shared_ptr<Blob>& dout,
+                         const vector<shared_ptr<Blob>>& cache,
+                         vector<shared_ptr<Blob>>& grads);
 };
 
 /*!
@@ -95,7 +101,9 @@ public:
     * \param[in]  const ConvParam* param        conv params
     * \param[out] Blob& out                     Y
     */
-    static void forward(const vector<Blob*>& in, Blob** out, Param& param);
+    static void forward(const vector<shared_ptr<Blob>>& in,
+                        shared_ptr<Blob>& out,
+                        Param& param);
 
     /*!
     * \brief backward
@@ -107,7 +115,10 @@ public:
     * \param[in]  const vector<Blob*>& cache    cache[0]:X, cache[1]:weights, cache[2]:bias
     * \param[out] vector<Blob*>& grads          grads[0]:dX, grads[1]:dW, grads[2]:db
     */
-    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+    static void backward(shared_ptr<Blob>& dout,
+                         const vector<shared_ptr<Blob>>& cache,
+                         vector<shared_ptr<Blob>>& grads,
+                         Param& param);
 };
 
 /*!
@@ -126,7 +137,9 @@ public:
     * \param[in]  const Param* param        conv params
     * \param[out] Blob& out                     Y
     */
-    static void forward(const vector<Blob*>& in, Blob** out, Param& param);
+    static void forward(const vector<shared_ptr<Blob>>& in,
+                        shared_ptr<Blob>& out,
+                        Param& param);
 
     /*!
     * \brief backward
@@ -136,7 +149,10 @@ public:
     * \param[in]  const vector<Blob*>& cache    cache[0]:X
     * \param[out] vector<Blob*>& grads          grads[0]:dX
     */
-    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+    static void backward(shared_ptr<Blob>& dout,
+                         const vector<shared_ptr<Blob>>& cache,
+                         vector<shared_ptr<Blob>>& grads,
+                         Param& param);
 };
 
 /*!
@@ -154,7 +170,8 @@ public:
     * \param[in]  const vector<Blob*>& in       in[0]:X
     * \param[out] Blob& out                     Y
     */
-    static void forward(const vector<Blob*>& in, Blob** out);
+    static void forward(const vector<shared_ptr<Blob>>& in,
+                        shared_ptr<Blob>& out);
 
     /*!
     * \brief backward, dX = dout .* (X > 0)
@@ -164,7 +181,9 @@ public:
     * \param[in]  const vector<Blob*>& cache    cache[0]:X
     * \param[out] vector<Blob*>& grads          grads[0]:dX
     */
-    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads);
+    static void backward(shared_ptr<Blob>& dout,
+                         const vector<shared_ptr<Blob>>& cache,
+                         vector<shared_ptr<Blob>>& grads);
 };
 
 /*!
@@ -182,7 +201,9 @@ public:
     * \param[in]  const vector<Blob*>& in       in[0]:X
     * \param[out] Blob& out                     Y
     */
-    static void forward(const vector<Blob*>& in, Blob** out, Param& param);
+    static void forward(const vector<shared_ptr<Blob>>& in,
+                        shared_ptr<Blob>& out,
+                        Param& param);
 
     /*!
     * \brief backward
@@ -192,7 +213,10 @@ public:
     * \param[in]  const vector<Blob*>& cache    cache[0]:X
     * \param[out] vector<Blob*>& grads          grads[0]:dX
     */
-    static void backward(Blob* dout, const vector<Blob*>& cache, vector<Blob*>& grads, Param& param);
+    static void backward(shared_ptr<Blob>& dout,
+                         const vector<shared_ptr<Blob>>& cache,
+                         vector<shared_ptr<Blob>>& grads,
+                         Param& param);
 };
 
 /*!
@@ -212,7 +236,7 @@ public:
     * \param[out] Blob** out                    out: dX
     * \param[in]  int mode                      1: only forward, 0:forward and backward
     */
-    static void go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0);
+    static void go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode = 0);
 };
 
 /*!
@@ -232,7 +256,7 @@ public:
     * \param[out] Blob** out                    out: dX
     * \param[in]  int mode                      1: only forward, 0:forward and backward
     */
-    static void go(const vector<Blob*>& in, double& loss, Blob** out, int mode = 0);
+    static void go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode = 0);
 };
 
 } // namespace mini_net

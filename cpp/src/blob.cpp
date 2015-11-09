@@ -126,25 +126,22 @@ Blob operator/(Blob& A, Blob& B) {
 }
 
 // convertion
-void mat2Blob(mat& mA, Blob** out, int c, int h, int w) {
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w) {
     int n = mA.n_rows;
     assert(mA.n_cols == c*h*w);
 
     mA = mA.t();
-    if (*out) {
-        delete *out;
-        *out = NULL;
+    if (out) {
+        out.reset();
     }
-    *out = new Blob(n, c, h, w);
+    out.reset(new Blob(n, c, h, w));
     for (int i = 0; i < n; ++i) {
-        //mat a = arma::reshape(mA.row(i), h, w, c);
-        //cube ca = cube(mA.colptr(i), h, w, c);
-        //cout << ca << endl;
-        (**out)[i] = cube(mA.colptr(i), h, w, c);
+        (*out)[i] = cube(mA.colptr(i), h, w, c);
     }
     return;
 }
-void mat2Blob(mat& mA, Blob** out, const vector<int>& sz) {
+
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz) {
     int n = mA.n_rows;
     int c = sz[1];
     int h = sz[2];
@@ -152,19 +149,17 @@ void mat2Blob(mat& mA, Blob** out, const vector<int>& sz) {
     assert(mA.n_cols == c*h*w);
 
     mA = mA.t();
-    if (*out) {
-        delete *out;
-        *out = NULL;
+    if (out) {
+        out.reset();
     }
-    *out = new Blob(n, c, h, w);
+    out.reset(new Blob(n, c, h, w));
     for (int i = 0; i < n; ++i) {
-        //mat a = arma::reshape(mA.row(i), h, w, c);
-        //cube ca = cube(mA.colptr(i), h, w, c);
-        //cout << ca << endl;
-        (**out)[i] = cube(mA.colptr(i), h, w, c);
+        (*out)[i] = cube(mA.colptr(i), h, w, c);
     }
     return;
 }
+void mat2Blob(mat& mA, Blob** out, int c, int h, int w) {}
+void mat2Blob(mat& mA, Blob** out, const vector<int>& sz) {}
 
 // += -= *= /=
 Blob& Blob::operator+=(const double num) {

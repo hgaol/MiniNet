@@ -12,12 +12,6 @@
 
 namespace mini_net {
 
-enum TestType {
-    TDX = 1,
-    TDW = 2,
-    TDB = 3
-};
-
 class Test {
 
 public:
@@ -63,31 +57,30 @@ public:
     }
 
     template<typename _Tp>
-    static Blob calcNumGradientBlobLoss(vector<Blob*>& in, _Tp func, double eps = 1e-6) {
+    static Blob calcNumGradientBlobLoss(shared_ptr<Blob>& in,
+                                         _Tp func,
+                                         double eps = 1e-6) {
 
-        Blob num_grad(in[0]->size());
+        Blob num_grad(in->size());
 
         int N = num_grad.get_N();
         int C = num_grad.get_C();
         int H = num_grad.get_H();
         int W = num_grad.get_W();
-        /*! only forward */
-        int mode = 1;
-        /*! fake */
-        Blob *out = NULL;
 
         for (int n = 0; n < N; ++n) {
             for (int c = 0; c < C; ++c) {
                 for (int h = 0; h < H; ++h) {
                     for (int w = 0; w < W; ++w) {
-                        double old_val = (*in[0])[n](h, w, c);
-                        (*in[0])[n](h, w, c) = old_val + eps;
+                        double old_val = (*in)[n](h, w, c);
+                        double &val = (*in)[n](h, w, c);
+                        val = old_val + eps;
                         double fp;
-                        func(in, fp, &out, 1);
-                        (*in[0])[n](h, w, c) = old_val - eps;
+                        func(fp);
+                        val = old_val - eps;
                         double fm;
-                        func(in, fm, &out, 1);
-                        (*in[0])[n](h, w, c) = old_val;
+                        func(fm);
+                        val = old_val;
                         double tmp = (fp - fm) / (2 * eps);
                         num_grad[n](h, w, c) = tmp;
                     }
@@ -98,12 +91,12 @@ public:
     }
 
     template<typename _Tp>
-    static Blob calcNumGradientBlob(vector<Blob*>& in, Blob* dout, _Tp func, TestType type, double eps = 1e-6) {
+    static Blob calcNumGradientBlob(shared_ptr<Blob>& in,
+                                     shared_ptr<Blob>& dout,
+                                     _Tp func,
+                                     double eps = 1e-6) {
         
-        Blob num_grad;
-        if (type == TDX) num_grad.setShape(in[0]->size());
-        if (type == TDW) num_grad.setShape(in[1]->size());
-        if (type == TDB) num_grad.setShape(in[2]->size());
+        Blob num_grad(in->size());
 
         int N = num_grad.get_N();
         int C = num_grad.get_C();
@@ -114,138 +107,23 @@ public:
             for (int c = 0; c < C; ++c) {
                 for (int h = 0; h < H; ++h) {
                     for (int w = 0; w < W; ++w) {
-                        assert(type == TDX || type == TDW || type == TDB);
-                        if (type == TDX) {
-                            double old_val = (*in[0])[n](h, w, c);
-                            (*in[0])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp);
-                            (*in[0])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm);
-                            (*in[0])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
-                        if (type == TDW) {
-                            double old_val = (*in[1])[n](h, w, c);
-                            (*in[1])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp);
-                            (*in[1])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm);
-                            (*in[1])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
-                        if (type == TDB) {
-                            double old_val = (*in[2])[n](h, w, c);
-                            (*in[2])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp);
-                            (*in[2])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm);
-                            (*in[2])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
+                        double old_val = (*in)[n](h, w, c);
+                        double &val = (*in)[n](h, w, c);
+                        val = old_val + eps;
+                        shared_ptr<Blob> fp;
+                        func(fp);
+                        val = old_val - eps;
+                        shared_ptr<Blob> fm;
+                        func(fm);
+                        val = old_val;
+                        Blob bb = (*fp - *fm) * (*dout);
+                        double tmp = (bb / (2 * eps)).sum();
+                        num_grad[n](h, w, c) = tmp;
                     }
                 }
             }
         }
-        return num_grad;
-    }
 
-    template<typename _Tp>
-    static Blob calcNumGradientBlobParam(vector<Blob*>& in, Blob* dout, Param& param, _Tp func, TestType type, double eps = 1e-6) {
-
-        Blob num_grad;
-        if (type == TDX) num_grad.setShape(in[0]->size());
-        if (type == TDW) num_grad.setShape(in[1]->size());
-        if (type == TDB) num_grad.setShape(in[2]->size());
-
-        int N = num_grad.get_N();
-        int C = num_grad.get_C();
-        int H = num_grad.get_H();
-        int W = num_grad.get_W();
-
-        for (int n = 0; n < N; ++n) {
-            for (int c = 0; c < C; ++c) {
-                for (int h = 0; h < H; ++h) {
-                    for (int w = 0; w < W; ++w) {
-                        assert(type == TDX || type == TDW || type == TDB);
-                        if (type == TDX) {
-                            double old_val = (*in[0])[n](h, w, c);
-                            (*in[0])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp, param);
-                            (*in[0])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm, param);
-                            (*in[0])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
-                        if (type == TDW) {
-                            double old_val = (*in[1])[n](h, w, c);
-                            (*in[1])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp, param);
-                            (*in[1])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm, param);
-                            (*in[1])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
-                        if (type == TDB) {
-                            double old_val = (*in[2])[n](h, w, c);
-                            (*in[2])[n](h, w, c) = old_val + eps;
-                            Blob *fp = NULL;
-                            func(in, &fp, param);
-                            (*in[2])[n](h, w, c) = old_val - eps;
-                            Blob *fm = NULL;
-                            func(in, &fm, param);
-                            (*in[2])[n](h, w, c) = old_val;
-                            Blob bb = (*fp - *fm) * (*dout);
-                            double tmp = (bb / (2 * eps)).sum();
-                            num_grad[n](h, w, c) = tmp;
-                            delete fp;
-                            delete fm;
-                            fp = NULL;
-                            fm = NULL;
-                        }
-                    }
-                }
-            }
-        }
         return num_grad;
     }
 

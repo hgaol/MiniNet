@@ -1,7 +1,7 @@
 /*!
 *  Copyright (c) 2015 by hgaolbb
 * \file blob.hpp
-* \brief all layers implement
+* \brief 
 */
 
 #ifndef MINI_NET_BLOB_HPP_
@@ -12,8 +12,10 @@
 #include <assert.h>
 #include <iostream>
 #include <cstdio>
+#include <memory>
 
 using std::vector;
+using std::shared_ptr;
 using namespace arma;
 
 namespace mini_net {
@@ -26,6 +28,7 @@ enum FillType {
     TRANDN = 4,
     TDEFAULT = 5
 };
+
 class Blob;
 // operation
 Blob operator+(Blob& A, const double num);
@@ -40,9 +43,12 @@ Blob operator*(Blob& A, Blob& B);
 Blob operator/(Blob& A, const double num);
 Blob operator/(const double num, Blob& A);
 Blob operator/(Blob& A, Blob& B);
+
 // convertion
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w);
 void mat2Blob(mat& mA, Blob** out, int c, int h, int w);
 void mat2Blob(mat& mA, Blob** out, const vector<int>& sz);
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz);
 
 class Blob {
 
