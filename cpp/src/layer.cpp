@@ -62,15 +62,15 @@ void AffineLayer::backward(shared_ptr<Blob>& dout,
     // dX
     mat mat_dx = dout->reshape() * pW->reshape();
     mat2Blob(mat_dx, dX, pX->size());
-    grads.push_back(dX);
+    grads[0] = dX;
     // dW
     mat mat_dw = dout->reshape().t() * pX->reshape();
     mat2Blob(mat_dw, dW, (*pW).size());
-    grads.push_back(dW);
+    grads[1] = dW;
     // db
     mat mat_db = dout->reshape().t() * mat(n, 1, fill::ones);
     mat2Blob(mat_db, db, (*pb).size());
-    grads.push_back(db);
+    grads[2] = db;
 
     return;
 }
@@ -147,9 +147,7 @@ void ConvLayer::backward(shared_ptr<Blob>& dout,
     int Wy = dout->get_W();
     assert(C == cache[1]->get_C());
     assert(F == cache[2]->get_N());
-    if (!grads.empty()) {
-        grads.clear();
-    }
+
     shared_ptr<Blob> dX(new Blob(cache[0]->size(), TZEROS));
     shared_ptr<Blob> dW(new Blob(cache[1]->size(), TZEROS));
     shared_ptr<Blob> db(new Blob(cache[2]->size(), TZEROS));
@@ -174,9 +172,9 @@ void ConvLayer::backward(shared_ptr<Blob>& dout,
         }
     }
     *dX = pad_dX.dePad(param.conv_pad);
-    grads.push_back(dX);
-    grads.push_back(dW);
-    grads.push_back(db);
+    grads[0] = dX;
+    grads[1] = dW;
+    grads[2] = db;
 
     return;
 }
@@ -262,7 +260,7 @@ void PoolLayer::backward(shared_ptr<Blob>& dout,
             }
         }
     }
-    grads.push_back(dX);
+    grads[0] = dX;
     return;
 }
 
@@ -300,7 +298,7 @@ void ReluLayer::backward(shared_ptr<Blob>& dout,
         (*dX)[i].transform([](double e) {return e > 0 ? 1 : 0;});
     }
     (*dX) = (*dout) * (*dX);
-    grads.push_back(dX);
+    grads[0] = dX;
     return;
 }
 
@@ -327,9 +325,8 @@ void DropoutLayer::forward(const vector<shared_ptr<Blob>>& in,
     if ((mode & 1) == 1) {
         if ((mode & 2) == 2) {
             seed = param.drop_seed;
-            arma_rng::set_seed(seed);
         }
-        shared_ptr<Blob> mask(new Blob(in[0]->size(), TRANDU));
+        shared_ptr<Blob> mask(new Blob(seed, in[0]->size(), TRANDU));
         (*mask).smallerIn(p);
         out.reset(new Blob(*in[0] * (*mask) / p));
         if (param.drop_mask) {
@@ -363,7 +360,7 @@ void DropoutLayer::backward(shared_ptr<Blob>& dout,
     if ((mode & 1) == 1) {
         *dX = (*dX) * (*param.drop_mask) / param.drop_p;
     }
-    grads.push_back(dX);
+    grads[0] = dX;
     return;
 }
 
@@ -375,11 +372,14 @@ void DropoutLayer::backward(shared_ptr<Blob>& dout,
 * \param[out] double& loss                  loss
 * \param[out] Blob** out                    out: dX
 */
-void SoftmaxLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode) {
-    Blob X(*in[0]);
-    Blob Y(*in[1]);
-    if (out) {
-        out.reset();
+void SoftmaxLossLayer::go(const vector<shared_ptr<Blob>>& in,
+                          double& loss,
+                          shared_ptr<Blob>& dout,
+                          int mode) {
+    //Blob X(*in[0]);
+    //Blob Y(*in[1]);
+    if (dout) {
+        dout.reset();
     }
     int N = in[0]->get_N();
     int C = in[0]->get_C();
@@ -387,16 +387,21 @@ void SoftmaxLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shar
     int W = in[0]->get_W();
     assert(H == 1 && W == 1);
 
-    mat mat_x = X.reshape();
-    mat mat_y = Y.reshape();
+    mat mat_x = in[0]->reshape();
+    mat mat_y = in[1]->reshape();
 
     /*! forward */
     mat row_max = repmat(arma::max(mat_x, 1), 1, C);
     mat_x = arma::exp(mat_x - row_max);
     mat row_sum = repmat(arma::sum(mat_x, 1), 1, C);
     mat e = mat_x / row_sum;
+    //e.print("e:\n");
+    //mat rrs = arma::sum(e, 1);
+    //rrs.print("rrs:\n");
     mat prob = -arma::log(e);
-    /*! loss should near 2.3026 */
+    //prob.print("prob:\n");
+    //(prob%mat_y).print("gg:\n");
+    /*! loss should near -log(1/C) */
     loss = accu(prob % mat_y) / N;
     /*! only forward */
     if (mode == 1)
@@ -405,7 +410,7 @@ void SoftmaxLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shar
     /*! backward */
     mat dx = e - mat_y;
     dx /= N;
-    mat2Blob(dx, out, (*in[0]).size());
+    mat2Blob(dx, dout, (*in[0]).size());
     return;
 }
 
@@ -418,9 +423,12 @@ void SoftmaxLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shar
 * \param[out] Blob** out                    out: dX
 * \param[in]  int mode                      1: only forward, 0:forward and backward
 */
-void SVMLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode) {
-    if (out) {
-        out.reset();
+void SVMLossLayer::go(const vector<shared_ptr<Blob>>& in,
+                      double& loss,
+                      shared_ptr<Blob>& dout,
+                      int mode) {
+    if (dout) {
+        dout.reset();
     }
     /*! let delta equals to 1 */
     double delta = 0.2;
@@ -428,6 +436,8 @@ void SVMLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shared_p
     int C = in[0]->get_C();
     mat mat_x = in[0]->reshape();
     mat mat_y = in[1]->reshape();
+    //mat_x.print("X:\n");
+    //mat_y.print("Y:\n");
 
     /*! forward */
     mat good_x = repmat(arma::sum(mat_x % mat_y, 1), 1, C);
@@ -445,7 +455,7 @@ void SVMLossLayer::go(const vector<shared_ptr<Blob>>& in, double& loss, shared_p
     mat_y.transform([](double e) {return e ? 0 : 1;});
     mat sum_x = repmat(arma::sum(dx, 1), 1, C) % mat_y;
     dx = (dx - sum_x) / N;
-    mat2Blob(dx, out, in[0]->size());
+    mat2Blob(dx, dout, in[0]->size());
     return;
 }
 

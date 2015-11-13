@@ -136,6 +136,7 @@ public:
         Blob up = (X - Y).abs();
         Blob down = (X.abs() + Y.abs()).max(eps);
         Blob lhs = up / down;
+        lhs.print("pool:\n");
         return lhs.maxVal();
     }
 };

@@ -125,6 +125,63 @@ Blob operator/(Blob& A, Blob& B) {
     return out;
 }
 
+Blob sqrt(Blob& A) {
+    Blob out(A.size());
+    int N = A.get_N();
+    for (int i = 0; i < N; ++i) {
+        out[i] = arma::sqrt(A[i]);
+    }
+    return out;
+}
+
+double prob(Blob& Y, Blob& p) {
+    assert(Y.get_N() == p.get_N());
+    assert(Y.get_C() == p.get_C());
+    assert(Y.get_H() == p.get_H());
+    assert(Y.get_W() == p.get_W());
+
+    double ret = 0;
+    int N = Y.get_N();
+    int C = Y.get_C();
+    vector<int> pp(N, -1);
+    vector<int> yy(N, -2);
+    mat mpp = p.reshape();
+    mat myy = Y.reshape();
+    
+    for (int i = 0; i < N; ++i) {
+        int idx_p = 0, idx_y = 0;
+        double max_p = mpp(i,0), max_y = myy(i,0);
+        for (int j = 1; j < C; ++j) {
+            if (mpp(i, j) > max_p) {
+                max_p = mpp(i, j);
+                idx_p = j;
+            }
+            if (myy(i, j) > max_y) {
+                max_y = myy(i, j);
+                idx_y = j;
+            }
+        }
+        pp[i] = idx_p;
+        yy[i] = idx_y;
+    }
+    int cnt = 0;
+    for (int i = 0; i < N; ++i) {
+        if (pp[i] == yy[i])
+            cnt++;
+    }
+    ret = (double)cnt / (double)N;
+    return ret;
+}
+
+Blob compare(Blob& A, Blob& B) {
+    assert(A.get_N() == B.get_N());
+    Blob out(A.size());
+    for (int i = 0; i < A.get_N(); ++i) {
+        out[i] = conv_to<cube>::from(A[i] == B[i]);
+    }
+    return out;
+}
+
 // convertion
 void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w) {
     int n = mA.n_rows;
@@ -158,8 +215,6 @@ void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz) {
     }
     return;
 }
-void mat2Blob(mat& mA, Blob** out, int c, int h, int w) {}
-void mat2Blob(mat& mA, Blob** out, const vector<int>& sz) {}
 
 // += -= *= /=
 Blob& Blob::operator+=(const double num) {
@@ -199,12 +254,21 @@ void Blob::setShape(vector<int>& shape) {
 }
 Blob::Blob(const int n, const int c, const int h, const int w, int type) :
         N_(n), C_(c), H_(h), W_(w) {
+    arma_rng::set_seed_random();
     _init(n, c, h, w, type);
     return;
 }
 
 Blob::Blob(const vector<int>& shape, int type) :
         N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
+    arma_rng::set_seed_random();
+    _init(N_, C_, H_, W_, type);
+    return;
+}
+
+Blob::Blob(int seed, const vector<int>& shape, int type): 
+        N_(shape[0]), C_(shape[1]), H_(shape[2]), W_(shape[3]) {
+    arma_rng::set_seed(seed);
     _init(N_, C_, H_, W_, type);
     return;
 }
@@ -293,6 +357,28 @@ Blob Blob::abs() {
         out[i].transform([](double e) {return fabs(e);});
     }
     return out;
+}
+
+/*! sub Blob, return [lo, hi) */
+Blob Blob::subBlob(int lo, int hi) {
+    if (hi < lo) {
+        //cout << "subBlob overflow.\n" << endl;
+        Blob out(hi+N_-lo, C_, H_, W_);
+        for (int i = lo; i < N_; ++i) {
+            out[i - lo] = (*this)[i];
+        }
+        for (int i = 0; i < hi; ++i) {
+            out[i+N_-lo] = (*this)[i];
+        }
+        return out;
+    }
+    else {
+        Blob out(hi-lo, C_, H_, W_);
+        for (int i = lo; i < hi; ++i) {
+            out[i - lo] = (*this)[i];
+        }
+        return out;
+    }
 }
 
 double Blob::maxVal() {

@@ -20,6 +20,9 @@ struct Param {
     /*! \brief conv param */
     int conv_stride;
     int conv_pad;
+    int conv_width;
+    int conv_height;
+    int conv_kernels;
     inline void setConvParam(int s, int p) {
         conv_stride = s;
         conv_pad = p;
@@ -46,6 +49,8 @@ struct Param {
         drop_seed = s;
         drop_mask.reset();
     }
+    /*! fc parameters */
+    int fc_kernels;
 };
 
 /*!
@@ -236,7 +241,10 @@ public:
     * \param[out] Blob** out                    out: dX
     * \param[in]  int mode                      1: only forward, 0:forward and backward
     */
-    static void go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode = 0);
+    static void go(const vector<shared_ptr<Blob>>& in,
+                   double& loss,
+                   shared_ptr<Blob>& dout,
+                   int mode = 0);
 };
 
 /*!
@@ -256,7 +264,10 @@ public:
     * \param[out] Blob** out                    out: dX
     * \param[in]  int mode                      1: only forward, 0:forward and backward
     */
-    static void go(const vector<shared_ptr<Blob>>& in, double& loss, shared_ptr<Blob>& out, int mode = 0);
+    static void go(const vector<shared_ptr<Blob>>& in,
+                   double& loss,
+                   shared_ptr<Blob>& dout, 
+                   int mode = 0);
 };
 
 } // namespace mini_net

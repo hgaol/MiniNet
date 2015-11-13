@@ -26,7 +26,7 @@ fprintf('diffence: %e\n', rel_error(dx_num, a));
 addpath Layers;
 num_classes = 10;
 num_input = 50;
-x = 1e-2 .* randn(num_input, num_classes);
+x = 1e2 .* randn(num_input, num_classes);
 y = randi([1,10], num_input, 1);
 dx_num = EvalNumGradient(@(x)SoftmaxLossLayer(x,y), x);
 [loss, dx] = SoftmaxLossLayer(x,y);

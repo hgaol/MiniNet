@@ -46,9 +46,14 @@ Blob operator/(Blob& A, Blob& B);
 
 // convertion
 void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w);
-void mat2Blob(mat& mA, Blob** out, int c, int h, int w);
-void mat2Blob(mat& mA, Blob** out, const vector<int>& sz);
 void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz);
+
+/*! \brief other math operation */
+Blob sqrt(Blob& A);
+/*! \brief prob */
+double prob(Blob& Y, Blob& p);
+/*! \brief element compare */
+Blob compare(Blob& A, Blob& B);
 
 class Blob {
 
@@ -58,6 +63,7 @@ public:
     }
     explicit Blob(const int n, const int c, const int h, const int w, int type = TDEFAULT);
     explicit Blob(const vector<int>& shape, int type = TDEFAULT);
+    explicit Blob(int seed, const vector<int>& shape, int type = TDEFAULT);
     ~Blob() {}
 
     // need set shape later sometimes, like in test.hpp func[calcNumGradientBlob]
@@ -120,6 +126,8 @@ public:
     void biggerIn(double val);
     /*! element wise operation, return absolute value*/
     Blob abs();
+    /*! sub Blob, return [lo, hi) */
+    Blob subBlob(int lo, int hi);
 
     /*! find the max value in the blob */
     double maxVal();
