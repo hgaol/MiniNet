@@ -308,7 +308,7 @@ void testSVM() {
 
 //void testNet() {
 //    Net a;
-//    a.sampleInitNet();
+//    a.initNet();
 //    a.sampleNet(0);
 //}
 
@@ -358,9 +358,9 @@ void testSampleNetTrain() {
     param.ltypes.push_back("Softmax");
 
     Net inst;
-    inst.sampleInitNet(param, X, Y);
-    inst.sampleTrain(param);
-    //inst.sampleTestNet(param);
+    inst.initNet(param, X, Y);
+    inst.train(param);
+    //inst.testNet(param);
 }
 
 int main()
@@ -370,7 +370,7 @@ int main()
     //testBlob();
     //testAffineLayer();
     //testConvLayer();
-    testPoolLayer();
+    //testPoolLayer();
     //testRelu();
     //testDropout();
     //testSoftmax();

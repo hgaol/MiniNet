@@ -45,21 +45,26 @@ public:
     Net(){}
 
     /*! \brief forward and backward */
-    void sampleNet(shared_ptr<Blob>& X, 
-                   shared_ptr<Blob>& Y,
-                   NetParam& param,
-                   std::string mode = "fb");
+    void trainNet(shared_ptr<Blob>& X, 
+                  shared_ptr<Blob>& Y,
+                  NetParam& param,
+                  std::string mode = "fb");
 
     /*! \brief test if all layers are right, be careful set reg to 0 */
-    void sampleTestNet(NetParam& param);
+    void testNet(NetParam& param);
 
-    /*! \brief set input data and ground truth */
-    void sampleInitNet(NetParam& param,
-                       shared_ptr<Blob>& X,
-                       shared_ptr<Blob>& Y);
+    /*!
+     * \brief set input data and ground truth
+     * \param[in]  NetParam& param                   net parameters
+     * \param[in]  vector<shared_ptr<Blob>>& X       X[0]: train data,  X[1]: val data
+     * \param[in]  vector<shared_ptr<Blob>>& Y       Y[0]: train label, Y[1]: val label
+     */
+    void initNet(NetParam& param,
+                 vector<shared_ptr<Blob>>& X,
+                 vector<shared_ptr<Blob>>& Y);
 
     /*! \brief train the net */
-    void sampleTrain(NetParam& param);
+    void train(NetParam& param);
 
     //void sampleInitData();
 
@@ -97,12 +102,15 @@ private:
     void _test_softmax_layer(vector<shared_ptr<Blob>>& in,
                          shared_ptr<Blob>& dout); 
 
+    /*! \brief save data names */
     vector<std::string> layers_;
+    /*! \brief save data types */
     vector<std::string> ltype_;
+    /*! \brief temporary loss score */
     double loss_;
     // train data set
-    shared_ptr<Blob> X_;
-    shared_ptr<Blob> Y_;
+    shared_ptr<Blob> X_train_;
+    shared_ptr<Blob> Y_train_;
     // val data set
     shared_ptr<Blob> X_val_;
     shared_ptr<Blob> Y_val_;
@@ -121,6 +129,9 @@ private:
 
     /*! step cache */
     unordered_map<std::string, vector<shared_ptr<Blob>>> step_cache_;
+
+    /*! \brief best model */
+    unordered_map<std::string, vector<shared_ptr<Blob>>> best_model_;
 
 }; // class Net
 

@@ -8,7 +8,7 @@
 
 namespace mini_net {
 
-void Net::sampleNet(shared_ptr<Blob>& X,
+void Net::trainNet(shared_ptr<Blob>& X,
                     shared_ptr<Blob>& Y,
                     NetParam& param,
                     std::string mode) {
@@ -112,18 +112,20 @@ void Net::sampleNet(shared_ptr<Blob>& X,
     return;
 }
 
-void Net::sampleTestNet(NetParam& param) {
-    shared_ptr<Blob> X_batch(new Blob(X_->subBlob(0, 1)));
-    shared_ptr<Blob> Y_batch(new Blob(Y_->subBlob(0, 1)));
-    sampleNet(X_batch, Y_batch, param);
+void Net::testNet(NetParam& param) {
+    shared_ptr<Blob> X_batch(new Blob(X_train_->subBlob(0, 1)));
+    shared_ptr<Blob> Y_batch(new Blob(Y_train_->subBlob(0, 1)));
+    trainNet(X_batch, Y_batch, param);
+    cout << "BEGIN TEST LAYERS" << endl;
     for (int i = 0; i < (int)layers_.size(); ++i) {
         testLayer(param, i);
+        printf("\n");
     }
 }
 
-void Net::sampleInitNet(NetParam& param,
-                        shared_ptr<Blob>& X,
-                        shared_ptr<Blob>& Y) {
+void Net::initNet(NetParam& param,
+                  vector<shared_ptr<Blob>>& X,
+                  vector<shared_ptr<Blob>>& Y) {
 
     layers_ = param.layers;
     ltype_ = param.ltypes;
@@ -131,16 +133,19 @@ void Net::sampleInitNet(NetParam& param,
         data_[layers_[i]] = vector<shared_ptr<Blob>>(3);
         grads_[layers_[i]] = vector<shared_ptr<Blob>>(3);
         step_cache_[layers_[i]] = vector<shared_ptr<Blob>>(3);
+        best_model_[layers_[i]] = vector<shared_ptr<Blob>>(3);
     }
-    X_ = X;
-    Y_ = Y;
+    X_train_ = X[0];
+    Y_train_ = Y[0];
+    X_val_ = X[1];
+    Y_val_ = Y[1];
 
     return;
 }
 
-void Net::sampleTrain(NetParam& param) {
+void Net::train(NetParam& param) {
     // to be delete
-    int N = X_->get_N();
+    int N = X_train_->get_N();
     int iter_per_epochs;
     if (param.use_batch) {
         iter_per_epochs = N / param.batch_size;
@@ -158,18 +163,18 @@ void Net::sampleTrain(NetParam& param) {
         shared_ptr<Blob> Y_batch;
         if (param.use_batch) {
             // deep copy
-            X_batch.reset(new Blob(X_->subBlob((iter * param.batch_size) % N,
+            X_batch.reset(new Blob(X_train_->subBlob((iter * param.batch_size) % N,
                                                         ((iter+1) * param.batch_size) % N)));
-            Y_batch.reset(new Blob(Y_->subBlob((iter * param.batch_size) % N,
+            Y_batch.reset(new Blob(Y_train_->subBlob((iter * param.batch_size) % N,
                                                         ((iter+1) * param.batch_size) % N)));
         }
         else {
-            shared_ptr<Blob> X_batch = X_;
-            shared_ptr<Blob> Y_batch = Y_;
+            shared_ptr<Blob> X_batch = X_train_;
+            shared_ptr<Blob> Y_batch = Y_train_;
         }
 
         // train
-        sampleNet(X_batch, Y_batch, param);
+        trainNet(X_batch, Y_batch, param);
 
         // update
         for (int i = 0; i < (int)layers_.size(); ++i) {
@@ -219,29 +224,30 @@ void Net::sampleTrain(NetParam& param) {
         bool epoch_end = (iter + 1) % iter_per_epochs == 0;
         bool acc_check = (param.acc_frequence && (iter+1) % param.acc_frequence == 0);
         if (first_it || epoch_end || acc_check) {
-            // update learning rate
+            // update learning rate[TODO]
             if (iter > 0 && epoch_end) {
                 param.lr *= param.lr_decay;
                 epoch++;
             }
+            param.lr *= param.lr_decay;
 
             // evaluate train set accuracy
             shared_ptr<Blob> X_train_subset;
             shared_ptr<Blob> Y_train_subset;
             if (N > 1000) {
-                *X_train_subset = X_->subBlob(0, 1000);
-                *Y_train_subset = Y_->subBlob(0, 1000);
+                X_train_subset.reset(new Blob(X_train_->subBlob(0, 100)));
+                Y_train_subset.reset(new Blob(Y_train_->subBlob(0, 100)));
             }
             else {
-                X_train_subset = X_;
-                Y_train_subset = Y_;
+                X_train_subset = X_train_;
+                Y_train_subset = Y_train_;
             }
-            sampleNet(X_train_subset, Y_train_subset, param, "forward");
+            trainNet(X_train_subset, Y_train_subset, param, "forward");
             double train_acc = prob(*data_[layers_.back()][1], *data_[layers_.back()][0]);
             train_acc_history_.push_back(train_acc);
 
-            // evaluate val set accuracy
-            sampleNet(X_train_subset, Y_train_subset, param, "forward");
+            // evaluate val set accuracy[TODO: change train to val]
+            trainNet(X_val_, Y_val_, param, "forward");
             double val_acc = prob(*data_[layers_.back()][1], *data_[layers_.back()][0]);
             val_acc_history_.push_back(val_acc);
 
@@ -249,6 +255,16 @@ void Net::sampleTrain(NetParam& param) {
             printf("iter: %d  loss: %f  train_acc: %0.2f%%    val_acc: %0.2f%%    lr: %0.6f\n",
                     iter, loss_, train_acc*100, val_acc*100, param.lr);
 
+            // save best model[TODO]
+            //if (val_acc_history_.size() > 1 && val_acc < val_acc_history_[val_acc_history_.size()-2]) {
+            //    for (auto i : layers_) {
+            //        if (!data_[i][1] || !data_[i][2]) {
+            //            continue;
+            //        }
+            //        best_model_[i][1] = data_[i][1];
+            //        best_model_[i][2] = data_[i][2];
+            //    }
+            //}
         }
     }
 
