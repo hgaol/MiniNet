@@ -17,23 +17,6 @@ using std::shared_ptr;
 
 namespace mini_net {
 
-struct TrainParam {
-    /*
-    vector<std::string> layers_;
-    unordered_map<std::string, Param> params_;
-
-    NetParam() {
-        layers_.push_back("conv1");
-        params_["conv1"].setConvParam(1,1);
-        layers_.push_back("relu1");
-        layers_.push_back("pool1");
-        params_["conv1"].setPoolParam(2,2,2);
-        layers_.push_back("fc1");
-    }
-    */
-    
-};
-
 struct NetParam {
     /*! methods of update net parameters, sgd/momentum/... */
     std::string update;
@@ -48,8 +31,6 @@ struct NetParam {
     int batch_size;
     /*! regulazation parameter */
     double reg;
-    /*! whether test layers */
-    bool test_net;
     /*! \brief acc_frequence, how many iterations to check val_acc and train_acc */
     int acc_frequence;
 
@@ -86,26 +67,33 @@ public:
     void testLayer(NetParam& param, int lnum);
 
 private:
+
     void _test_fc_layer(vector<shared_ptr<Blob>>& in,
                         vector<shared_ptr<Blob>>& grads,
                         shared_ptr<Blob>& dout); 
+
     void _test_conv_layer(vector<shared_ptr<Blob>>& in,
                          vector<shared_ptr<Blob>>& grads,
                          shared_ptr<Blob>& dout,
                          Param& param); 
+
     void _test_pool_layer(vector<shared_ptr<Blob>>& in,
                          vector<shared_ptr<Blob>>& grads,
                          shared_ptr<Blob>& dout,
                          Param& param); 
+
     void _test_relu_layer(vector<shared_ptr<Blob>>& in,
                          vector<shared_ptr<Blob>>& grads,
                          shared_ptr<Blob>& dout); 
+
     void _test_dropout_layer(vector<shared_ptr<Blob>>& in,
                          vector<shared_ptr<Blob>>& grads,
                          shared_ptr<Blob>& dout,
                          Param& param); 
+
     void _test_svm_layer(vector<shared_ptr<Blob>>& in,
                          shared_ptr<Blob>& dout); 
+
     void _test_softmax_layer(vector<shared_ptr<Blob>>& in,
                          shared_ptr<Blob>& dout); 
 
@@ -125,10 +113,12 @@ private:
 
     /*! train or test */
     std::string type_;
+
     /*! train result */
     vector<double> loss_history_;
     vector<double> train_acc_history_;
     vector<double> val_acc_history_;
+
     /*! step cache */
     unordered_map<std::string, vector<shared_ptr<Blob>>> step_cache_;
 

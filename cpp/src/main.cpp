@@ -179,8 +179,10 @@ void testConvLayer() {
 }
 
 void testPoolLayer() {
-    shared_ptr<Blob> x(new Blob(1,3,8,8,TRANDN));
-    shared_ptr<Blob> dout(new Blob(1,3,4,4,TRANDN));
+    shared_ptr<Blob> x(new Blob(1,5,4,4,TRANDN));
+    //shared_ptr<Blob> x(new Blob(1,5,4,4,TZEROS));
+    (*x) *= 1e-2;
+    shared_ptr<Blob> dout(new Blob(1,5,2,2,TRANDN));
     vector<shared_ptr<Blob>> in{x};
     shared_ptr<Blob> out;
     Param param;
@@ -313,18 +315,20 @@ void testSVM() {
 void testSampleNetTrain() {
     NetParam param;
     param.batch_size = 30;
-    param.lr = 0.005;
-    param.momentum = 0.8;
+    param.lr = 0.1;
+    // momentum=0.9, lr_decay=0.99, lr=0.05
+    param.momentum = 0.9;
     param.num_epochs = 500;
     /*! when testing num_gradiets, reg must set to 0 */
     param.reg = 0;
     param.update = "momentum";
     param.use_batch = true;
     param.acc_frequence = 1;
-    param.lr_decay = 0.99;
+    param.lr_decay = 0.95;
 
-    shared_ptr<Blob> X(new Blob(100, 2, 4, 4, TRANDN));
-    (*X) *= 100;
+    //shared_ptr<Blob> X(new Blob(100, 2, 16, 16, TRANDN));
+    shared_ptr<Blob> X(new Blob(100, 2, 8, 8, TRANDN));
+    //(*X) *= 100;
     shared_ptr<Blob> Y;
     mat aa = randi<mat>(100, 1, distr_param(0, 9));
     mat bb(100, 10, fill::zeros);
@@ -355,8 +359,8 @@ void testSampleNetTrain() {
 
     Net inst;
     inst.sampleInitNet(param, X, Y);
-    //inst.sampleTrain(param);
-    inst.sampleTestNet(param);
+    inst.sampleTrain(param);
+    //inst.sampleTestNet(param);
 }
 
 int main()

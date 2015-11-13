@@ -16,6 +16,9 @@ void Net::sampleNet(shared_ptr<Blob>& X,
     data_[layers_[0]][0] = X;
     data_[layers_.back()][1] = Y;
 
+    // debug
+    Blob pb, pd;
+
     /*! forward */
     int n = ltype_.size();
     for (int i = 0; i < n-1; ++i) {
@@ -32,13 +35,14 @@ void Net::sampleNet(shared_ptr<Blob>& X,
                 (*data_[lname][1]) *= 1e-2;
             }
             if (!data_[lname][2]) {
-                data_[lname][2].reset(new Blob(tF, 1, 1, 1, TZEROS));
-                //(*data_[lname][2]) *= 1e-2;
+                data_[lname][2].reset(new Blob(tF, 1, 1, 1, TRANDN));
+                (*data_[lname][2]) *= 1e-1;
             }
             ConvLayer::forward(data_[lname], out, param.params[lname]);
         }
         if (ltype == "Pool") {
             PoolLayer::forward(data_[lname], out, param.params[lname]);
+            pb = *data_[lname][0];
         }
         if (ltype == "Fc") {
             int tF = param.params[lname].fc_kernels;
@@ -50,8 +54,8 @@ void Net::sampleNet(shared_ptr<Blob>& X,
                 (*data_[lname][1]) *= 1e-2;
             }
             if (!data_[lname][2]) {
-                data_[lname][2].reset(new Blob(tF, 1, 1, 1, TZEROS));
-                //(*data_[lname][2]) *= 1e-2;
+                data_[lname][2].reset(new Blob(tF, 1, 1, 1, TRANDN));
+                (*data_[lname][2]) *= 1e-1;
             }
             AffineLayer::forward(data_[lname], out);
         }
@@ -59,11 +63,10 @@ void Net::sampleNet(shared_ptr<Blob>& X,
             ReluLayer::forward(data_[lname], out);
         if (ltype == "Dropout")
             DropoutLayer::forward(data_[lname], out, param.params[lname]);
-        //out->print("out\n");
         data_[layers_[i+1]][0] = out;
     }
 
-    /*! calc loss */
+    // calc loss
     std::string loss_type = ltype_.back();
     shared_ptr<Blob> dout;
     if (loss_type == "SVM")
@@ -84,20 +87,21 @@ void Net::sampleNet(shared_ptr<Blob>& X,
         if (ltype == "Conv")
             ConvLayer::backward(grads_[layers_[i+1]][0], data_[lname],
                                 grads_[lname], param.params[lname]);
-        if (ltype == "Pool")
+        if (ltype == "Pool") {
             PoolLayer::backward(grads_[layers_[i+1]][0], data_[lname],
                                 grads_[lname], param.params[lname]);
+        }
         if (ltype == "Fc")
             AffineLayer::backward(grads_[layers_[i+1]][0], data_[lname], grads_[lname]);
         if (ltype == "Relu")
             ReluLayer::backward(grads_[layers_[i+1]][0], data_[lname], grads_[lname]);
     }
 
-    /*! regularition */
+    // regularition
     double reg_loss = 0;
     for (auto i : layers_) {
         if (grads_[i][1]) {
-            /* it's ok? */
+            // it's ok?
             (*grads_[i][1]) = (*grads_[i][1]) + param.reg * (*data_[i][1]);
             reg_loss += data_[i][1]->sum();
         }
@@ -146,8 +150,6 @@ void Net::sampleTrain(NetParam& param) {
     }
     int num_iters = iter_per_epochs * param.num_epochs;
     int epoch = 0;
-
-    // shuffle data
 
     // iteration
     for (int iter = 0; iter < num_iters; ++iter) {
@@ -247,35 +249,12 @@ void Net::sampleTrain(NetParam& param) {
             printf("iter: %d  loss: %f  train_acc: %0.2f%%    val_acc: %0.2f%%    lr: %0.6f\n",
                     iter, loss_, train_acc*100, val_acc*100, param.lr);
 
-            // save best model[TODO]
-            if (train_acc > 0.98) {
-                continue;
-            }
         }
     }
 
     return;
 }
 
-//void Net::sampleInitData() {
-//    /*! init layers_, layers_type_ */
-//    data_["conv1"][0].reset(new Blob(100, 2, 16, 16, TRANDN));
-//    input_ = data_["conv1"][0];
-//    /*! w1 */
-//    data_["conv1"][1].reset(new Blob(5, 2, 3, 3, TRANDN));
-//    /*! b1 */
-//    data_["conv1"][2].reset(new Blob(5, 1, 1, 1, TZEROS));
-//
-//    /*! affine layer */
-//    /*! w1 */
-//    data_["fc1"][1].reset(new Blob(6, 5, 8, 8, TRANDN));
-//    /*! b1 */
-//    data_["fc1"][2].reset(new Blob(6, 1, 1, 1, TZEROS));
-//
-//    /*! params */
-//    params_["conv1"].setConvParam(1, 1);
-//    params_["pool1"].setPoolParam(2, 2, 2);
-//}
 
 void Net::testLayer(NetParam& param, int lnum) {
     std::string ltype = ltype_[lnum];
@@ -343,10 +322,7 @@ void Net::_test_pool_layer(vector<shared_ptr<Blob>>& in,
     auto nfunc =[in, &param](shared_ptr<Blob>& e) {return PoolLayer::forward(in, e, param); };
 
     Blob num_dx = Test::calcNumGradientBlob(in[0], dout, nfunc);
-    num_dx.print("num_dx:\n");
-    grads[0]->print("num_dx:\n");
-    //(num_dx - *grads[0]).print("minus:\n");
-    //compare(num_dx, *grads[0]).print("cmp:\n");
+
     cout << "Test Pool Layer:" << endl;
     cout << Test::relError(num_dx, *grads[0]) << endl;
 
