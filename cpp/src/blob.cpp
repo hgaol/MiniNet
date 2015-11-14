@@ -294,12 +294,14 @@ vector<cube>& Blob::get_data() {
 }
 
 mat Blob::reshape() {
-    cube dst;
+    cube out;
     for (int i = 0; i < N_; ++i) {
-        dst = join_slices(dst, data_[i]);
+        out = join_slices(out, data_[i]);
     }
     //return arma::reshape(vectorise(dst), N_, C_*H_*W_);
-    return arma::reshape(vectorise(dst), C_*H_*W_, N_).t();
+    //return arma::reshape(vectorise(dst), C_*H_*W_, N_).t();
+    out.reshape(C_*H_*W_, N_, 1);
+    return out.slice(0).t();
 }
 
 double Blob::sum() {

@@ -58,7 +58,7 @@ Blob compare(Blob& A, Blob& B);
 class Blob {
 
 public:
-    Blob() : N_(0), C_(0), H_(0), W_(0), data_(NULL) {
+    Blob() : N_(0), C_(0), H_(0), W_(0) {
         arma_rng::set_seed_random();
     }
     explicit Blob(const int n, const int c, const int h, const int w, int type = TDEFAULT);

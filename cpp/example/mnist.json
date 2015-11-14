@@ -2,9 +2,9 @@
 {
     "train": {
         // original learning rate
-        "learning rate" : 0.1,
+        "learning rate" : 0.05,
         // learning rate decay: often set to 0.99
-        "lr decay": 0.95,
+        "lr decay": 0.99,
         // update method: sgd/momentum/rmsprop/adagrad
         "update method": "momentum",
         // if use "momentum" update method, it should be set, always be 0.9/0.95...
@@ -15,8 +15,8 @@
         "use batch": true,
         // batch size
         "batch size": 100,
-        // regulazation parameter
-        "reg": 0.001,
+        // regulazation parameter, when test layers, it should be 0
+        "reg": 0,
         // acc_frequence, how many iterations to check val_acc and train_acc
         "acc frequence": 1,
         // whether update learning rate when check val_acc and train_acc, true/false
