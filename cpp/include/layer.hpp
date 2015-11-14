@@ -23,18 +23,21 @@ struct Param {
     int conv_width;
     int conv_height;
     int conv_kernels;
-    inline void setConvParam(int s, int p) {
-        conv_stride = s;
-        conv_pad = p;
+    inline void setConvParam(int stride, int pad, int width, int height, int kernels) {
+        conv_stride = stride;
+        conv_pad = pad;
+        conv_width = width;
+        conv_height = height;
+        conv_kernels = kernels;
     }
     /*! \brief pool param */
     int pool_stride;
     int pool_width;
     int pool_height;
-    inline void setPoolParam(int s, int w, int h) {
-        pool_stride = s;
-        pool_width = w;
-        pool_height = h;
+    inline void setPoolParam(int stride, int width, int height) {
+        pool_stride = stride;
+        pool_width = width;
+        pool_height = height;
     }
     /*! \brief dropout param */
     /*! if the most right bit is 1 use train mode, else use test mode;

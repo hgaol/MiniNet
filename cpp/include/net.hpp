@@ -10,7 +10,9 @@
 #include "blob.hpp"
 #include "layer.hpp"
 #include "test.hpp"
+#include <json\json.h>
 #include <unordered_map>
+#include <fstream>
 
 using std::unordered_map;
 using std::shared_ptr;
@@ -33,10 +35,13 @@ struct NetParam {
     double reg;
     /*! \brief acc_frequence, how many iterations to check val_acc and train_acc */
     int acc_frequence;
+    bool acc_update_lr;
 
     vector<std::string> layers;
     vector<std::string> ltypes;
     unordered_map<std::string, Param> params;
+
+    void readNetParam(std::string file);
 };
 
 class Net {
