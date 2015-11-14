@@ -321,7 +321,7 @@ void testSampleNetTrain() {
     param.update = "momentum";
     param.use_batch = true;
     param.acc_frequence = 1;
-    param.lr_decay = 0.95;
+    param.lr_decay = 0.99;
 
     //shared_ptr<Blob> X(new Blob(100, 2, 16, 16, TRANDN));
     shared_ptr<Blob> X(new Blob(100, 2, 8, 8, TRANDN));
@@ -355,7 +355,9 @@ void testSampleNetTrain() {
     param.ltypes.push_back("Softmax");
 
     Net inst;
-    inst.initNet(param, X, Y);
+    vector<shared_ptr<Blob>> data{X,X};
+    vector<shared_ptr<Blob>> label{Y,Y};
+    inst.initNet(param, data, label);
     inst.train(param);
     //inst.testNet(param);
 }

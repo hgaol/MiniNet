@@ -6,3 +6,9 @@ alpha/
 
 #data
 *ubyte
+
+#tmp
+*.a
+*.o
+mnist
+ofsmall
