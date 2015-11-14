@@ -105,7 +105,7 @@ void trainMnist(shared_ptr<Blob>& X, shared_ptr<Blob>& Y) {
     //param.ltypes.push_back("Fc");
     //param.ltypes.push_back("Softmax");
     NetParam param;
-    param.readNetParam("example//mnist.json");
+    param.readNetParam("example/mnist.json");
 
     shared_ptr<Blob> X_train(new Blob(X->subBlob(0, 9000)));
     shared_ptr<Blob> Y_train(new Blob(Y->subBlob(0, 9000)));
@@ -124,8 +124,8 @@ int main()
 {
     shared_ptr<Blob> images(new Blob(10000,1,28,28));
     shared_ptr<Blob> labels(new Blob(10000,10,1,1,TZEROS));
-    ReadMnistData("example//t10k-images.idx3-ubyte", images);
-    ReadMnistLabel("example//t10k-labels.idx1-ubyte", labels);
+    ReadMnistData("example/t10k-images.idx3-ubyte", images);
+    ReadMnistLabel("example/t10k-labels.idx1-ubyte", labels);
     trainMnist(images, labels);
 
     return 0;

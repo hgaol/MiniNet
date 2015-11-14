@@ -151,7 +151,8 @@ void Net::trainNet(shared_ptr<Blob>& X,
     for (auto i : layers_) {
         if (grads_[i][1]) {
             // it's ok?
-            (*grads_[i][1]) = (*grads_[i][1]) + param.reg * (*data_[i][1]);
+            Blob reg_data = param.reg * (*data_[i][1]);
+            (*grads_[i][1]) = (*grads_[i][1]) + reg_data;
             reg_loss += data_[i][1]->sum();
         }
     }
@@ -244,7 +245,9 @@ void Net::train(NetParam& param) {
                     if (!step_cache_[lname][j]) {
                         step_cache_[lname][j].reset(new Blob(data_[lname][j]->size(), TZEROS));
                     }
-                    *dx = param.momentum * (*step_cache_[lname][j]) - param.lr * (*grads_[lname][j]);
+                    Blob ll = param.momentum * (*step_cache_[lname][j]);
+                    Blob rr = param.lr * (*grads_[lname][j]);
+                    *dx = ll - rr;
                     step_cache_[lname][j] = dx;
                 }
                 if (param.update == "rmsprop") {
@@ -253,16 +256,26 @@ void Net::train(NetParam& param) {
                     if (!step_cache_[lname][j]) {
                         step_cache_[lname][j].reset(new Blob(data_[lname][j]->size(), TZEROS));
                     }
-                    *step_cache_[lname][j] = decay_rate * (*step_cache_[lname][j])
-                                                + (1 - decay_rate) * (*grads_[lname][j]) * (*grads_[lname][j]);
-                    *dx = -param.lr * (*grads_[lname][j]) / mini_net::sqrt((*step_cache_[lname][j]) + 1e-8);
+                    Blob r1 = decay_rate * (*step_cache_[lname][j]);
+                    Blob r2 = (1 - decay_rate) * (*grads_[lname][j]);
+                    Blob r3 = r2 * (*grads_[lname][j]);
+                    *step_cache_[lname][j] = r1 + r3;
+                    Blob d1 = (*step_cache_[lname][j]) + 1e-8;
+                    Blob u1 = param.lr * (*grads_[lname][j]);
+                    Blob d2 = mini_net::sqrt(d1);
+                    Blob r4 = u1 / d2;
+                    *dx = 0 - r4;
                 }
                 if (param.update == "adagrad") {
                     if (!step_cache_[lname][j]) {
                         step_cache_[lname][j].reset(new Blob(data_[lname][j]->size(), TZEROS));
                     }
                     *step_cache_[lname][j] = (*grads_[lname][j]) * (*grads_[lname][j]);
-                    *dx = -param.lr * (*grads_[lname][j]) / mini_net::sqrt((*step_cache_[lname][j]) + 1e-8);
+                    Blob d1 = (*step_cache_[lname][j]) + 1e-8;
+                    Blob u1 = param.lr * (*grads_[lname][j]);
+                    Blob d2 = mini_net::sqrt(d1);
+                    Blob r4 = u1 / d2;
+                    *dx = 0 - r4;
                 }
                 *data_[lname][j] = (*data_[lname][j]) + (*dx);
             }
@@ -299,7 +312,7 @@ void Net::train(NetParam& param) {
             double val_acc = prob(*data_[layers_.back()][1], *data_[layers_.back()][0]);
             val_acc_history_.push_back(val_acc);
 
-            // print 
+            // print
             printf("iter: %d  loss: %f  train_acc: %0.2f%%    val_acc: %0.2f%%    lr: %0.6f\n",
                     iter, loss_, train_acc*100, val_acc*100, param.lr);
 
@@ -363,7 +376,7 @@ void Net::_test_conv_layer(vector<shared_ptr<Blob>>& in,
                      vector<shared_ptr<Blob>>& grads,
                      shared_ptr<Blob>& dout,
                      Param& param)  {
-    
+
     auto nfunc =[in, &param](shared_ptr<Blob>& e) {return ConvLayer::forward(in, e, param); };
     Blob num_dx = Test::calcNumGradientBlob(in[0], dout, nfunc);
     Blob num_dw = Test::calcNumGradientBlob(in[1], dout, nfunc);

@@ -1,7 +1,7 @@
 /*!
 *  Copyright (c) 2015 by hgaolbb
 * \file blob.hpp
-* \brief 
+* \brief
 */
 
 #ifndef MINI_NET_BLOB_HPP_
@@ -29,32 +29,6 @@ enum FillType {
     TDEFAULT = 5
 };
 
-class Blob;
-// operation
-Blob operator+(Blob& A, const double num);
-Blob operator+(const double num, Blob& A);
-Blob operator+(Blob& A, Blob& B);
-Blob operator-(Blob& A, const double num);
-Blob operator-(const double num, Blob& A);
-Blob operator-(Blob& A, Blob& B);
-Blob operator*(Blob& A, const double num);
-Blob operator*(const double num, Blob& A);
-Blob operator*(Blob& A, Blob& B);
-Blob operator/(Blob& A, const double num);
-Blob operator/(const double num, Blob& A);
-Blob operator/(Blob& A, Blob& B);
-
-// convertion
-void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w);
-void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz);
-
-/*! \brief other math operation */
-Blob sqrt(Blob& A);
-/*! \brief prob */
-double prob(Blob& Y, Blob& p);
-/*! \brief element compare */
-Blob compare(Blob& A, Blob& B);
-
 class Blob {
 
 public:
@@ -71,17 +45,17 @@ public:
     cube& operator[] (int i);
     Blob& operator= (double num);
 
-    friend Blob operator+(Blob& A, const double num);
-    friend Blob operator+(const double num, Blob& A);
+    friend Blob operator+(Blob& A, double num);
+    friend Blob operator+(double num, Blob& A);
     friend Blob operator+(Blob& A, Blob& B);
-    friend Blob operator-(Blob& A, const double num);
-    friend Blob operator-(const double num, Blob& A);
+    friend Blob operator-(Blob& A, double num);
+    friend Blob operator-(double num, Blob& A);
     friend Blob operator-(Blob& A, Blob& B);
-    friend Blob operator*(Blob& A, const double num);
-    friend Blob operator*(const double num, Blob& A);
+    friend Blob operator*(Blob& A, double num);
+    friend Blob operator*(double num, Blob& A);
     friend Blob operator*(Blob& A, Blob& B);
-    friend Blob operator/(Blob& A, const double num);
-    friend Blob operator/(const double num, Blob& A);
+    friend Blob operator/(Blob& A, double num);
+    friend Blob operator/(double num, Blob& A);
     friend Blob operator/(Blob& A, Blob& B);
 
     Blob& operator+=(const double num);
@@ -131,7 +105,7 @@ public:
 
     /*! find the max value in the blob */
     double maxVal();
-    
+
     Blob pad(int p, double val = 0);
     Blob dePad(int p);
     /*! print Blob */
@@ -147,6 +121,31 @@ private:
     int W_;
     vector<cube> data_;
 };
+
+// operation
+Blob operator+(Blob& A, double num);
+Blob operator+(double num, Blob& A);
+Blob operator+(Blob& A, Blob& B);
+Blob operator-(Blob& A, double num);
+Blob operator-(double num, Blob& A);
+Blob operator-(Blob& A, Blob& B);
+Blob operator*(Blob& A, double num);
+Blob operator*(double num, Blob& A);
+Blob operator*(Blob& A, Blob& B);
+Blob operator/(Blob& A, double num);
+Blob operator/(double num, Blob& A);
+Blob operator/(Blob& A, Blob& B);
+
+// convertion
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w);
+void mat2Blob(mat& mA, shared_ptr<Blob>& out, const vector<int>& sz);
+
+/*! \brief other math operation */
+Blob sqrt(Blob& A);
+/*! \brief prob */
+double prob(Blob& Y, Blob& p);
+/*! \brief element compare */
+Blob compare(Blob& A, Blob& B);
 
 } // namespace MiniNet
 

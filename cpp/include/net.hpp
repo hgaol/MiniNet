@@ -10,7 +10,7 @@
 #include "blob.hpp"
 #include "layer.hpp"
 #include "test.hpp"
-#include <json\json.h>
+#include <json/json.h>
 #include <unordered_map>
 #include <fstream>
 

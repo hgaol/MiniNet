@@ -51,7 +51,7 @@ void AffineLayer::backward(shared_ptr<Blob>& dout,
     shared_ptr<Blob> dX;
     shared_ptr<Blob> dW;
     shared_ptr<Blob> db;
-    
+
     int n = dout->get_N();
 
     shared_ptr<Blob> pX = cache[0];
@@ -103,7 +103,7 @@ void ConvLayer::forward(const vector<shared_ptr<Blob>>& in,
     // calc Hy, Wy
     int Hy = (Hx + param.conv_pad*2 -Hw) / param.conv_stride + 1;
     int Wy = (Wx + param.conv_pad*2 -Ww) / param.conv_stride + 1;
-    
+
     out.reset(new Blob(N, F, Hy, Wy));
     Blob padX = (*in[0]).pad(param.conv_pad);
 
@@ -203,7 +203,7 @@ void PoolLayer::forward(const vector<shared_ptr<Blob>>& in,
 
     int Hy = (Hx - height) / stride + 1;
     int Wy = (Wx - width) / stride + 1;
-    
+
     out.reset(new Blob(N, C, Hy, Wy));
 
     for (int n = 0; n < N; ++n) {
@@ -328,7 +328,8 @@ void DropoutLayer::forward(const vector<shared_ptr<Blob>>& in,
         }
         shared_ptr<Blob> mask(new Blob(seed, in[0]->size(), TRANDU));
         (*mask).smallerIn(p);
-        out.reset(new Blob(*in[0] * (*mask) / p));
+        Blob in_mask = (*in[0]) * (*mask);
+        out.reset(new Blob(in_mask / p));
         if (param.drop_mask) {
             param.drop_mask.reset();
         }
@@ -358,7 +359,8 @@ void DropoutLayer::backward(shared_ptr<Blob>& dout,
     int mode = param.drop_mode;
     assert(0 <= mode && mode <= 3);
     if ((mode & 1) == 1) {
-        *dX = (*dX) * (*param.drop_mask) / param.drop_p;
+        Blob dx_mask = (*dX) * (*param.drop_mask);
+        *dX = dx_mask / param.drop_p;
     }
     grads[0] = dX;
     return;

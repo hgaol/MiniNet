@@ -5,10 +5,7 @@
 */
 #include <iostream>
 #include <armadillo>
-#include "../include/blob.hpp"
-#include "../include/layer.hpp"
-#include "../include/test.hpp"
-#include "../include/net.hpp"
+#include <../include/mini_net.hpp>
 
 using namespace arma;
 using namespace mini_net;
@@ -156,7 +153,7 @@ void testConvLayer() {
     shared_ptr<Blob> b(new Blob(2,1,1,1,TRANDN));
     shared_ptr<Blob> dout(new Blob(1,2,5,5,TRANDN));
     Param param;
-    param.setConvParam(1,1);
+    param.setConvParam(1,1,3,3,5);
     vector<shared_ptr<Blob>> in{x, w, b};
     vector<shared_ptr<Blob>> grads(3, shared_ptr<Blob>());
     grads.push_back(shared_ptr<Blob>());

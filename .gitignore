@@ -1,7 +1,8 @@
+#
 #not finished
 Net.m
 alpha/
 *.asv
 
 #data
-t10k*ubyte
+*ubyte

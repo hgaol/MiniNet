@@ -8,7 +8,7 @@
 
 namespace mini_net {
 
-Blob operator+(Blob& A, const double num) {
+Blob operator+(Blob& A, double num) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -16,7 +16,7 @@ Blob operator+(Blob& A, const double num) {
     }
     return out;
 }
-Blob operator+(const double num, Blob& A) {
+Blob operator+(double num, Blob& A) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -37,7 +37,7 @@ Blob operator+(Blob& A, Blob& B) {
     }
     return out;
 }
-Blob operator-(Blob& A, const double num) {
+Blob operator-(Blob& A, double num) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -45,7 +45,7 @@ Blob operator-(Blob& A, const double num) {
     }
     return out;
 }
-Blob operator-(const double num, Blob& A) {
+Blob operator-(double num, Blob& A) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -66,7 +66,7 @@ Blob operator-(Blob& A, Blob& B) {
     }
     return out; 
 }
-Blob operator*(Blob& A, const double num) {
+Blob operator*(Blob& A, double num) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -74,7 +74,7 @@ Blob operator*(Blob& A, const double num) {
     }
     return out;
 }
-Blob operator*(const double num, Blob& A) {
+Blob operator*(double num, Blob& A) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -95,7 +95,7 @@ Blob operator*(Blob& A, Blob& B) {
     }
     return out;
 }
-Blob operator/(Blob& A, const double num) {
+Blob operator/(Blob& A, double num) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {
@@ -103,7 +103,7 @@ Blob operator/(Blob& A, const double num) {
     }
     return out;
 }
-Blob operator/(const double num, Blob& A) {
+Blob operator/(double num, Blob& A) {
     Blob out(A.size());
     int N = A.get_N();
     for (int i = 0; i < N; ++i) {

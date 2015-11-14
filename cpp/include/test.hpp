@@ -95,7 +95,7 @@ public:
                                      shared_ptr<Blob>& dout,
                                      _Tp func,
                                      double eps = 1e-6) {
-        
+
         Blob num_grad(in->size());
 
         int N = num_grad.get_N();
@@ -116,7 +116,8 @@ public:
                         shared_ptr<Blob> fm;
                         func(fm);
                         val = old_val;
-                        Blob bb = (*fp - *fm) * (*dout);
+                        Blob aa = *fp - *fm;
+                        Blob bb = aa * (*dout);
                         double tmp = (bb / (2 * eps)).sum();
                         num_grad[n](h, w, c) = tmp;
                     }
@@ -134,7 +135,9 @@ public:
 
     static double relError(Blob& X, Blob& Y, double eps = 1e-8) {
         Blob up = (X - Y).abs();
-        Blob down = (X.abs() + Y.abs()).max(eps);
+        Blob dl = X.abs();
+        Blob dr = Y.abs();
+        Blob down = (dl - dr).max(eps);
         Blob lhs = up / down;
         return lhs.maxVal();
     }
