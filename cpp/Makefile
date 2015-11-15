@@ -17,6 +17,8 @@ vpath %.cpp example
 
 .PHONY : all
 all : ofsmall mnist
+	-mkdir build
+	mv *.o *.a mnist ofsmall build
 
 ofsmall : ofsmall.o libmnet.a
 	$(CC) -o ofsmall ofsmall.o libmnet.a $(CXXFLAG)
@@ -38,4 +40,5 @@ blob.o layer.o net.o : blob.hpp layer.hpp net.hpp test.hpp blob.cpp layer.cpp ne
 
 .PHONY: clean
 clean:
-	-rm *.o *.a mnist ofsmall
+	-rm -r build/
+	-rm *.o *.a mnist ofsmall 

@@ -289,7 +289,9 @@ void Net::train(NetParam& param) {
             // update learning rate[TODO]
             if ((iter > 0 && epoch_end) || param.acc_update_lr) {
                 param.lr *= param.lr_decay;
-                epoch++;
+                if (epoch_end) {
+                    epoch++;
+                }
             }
 
             // evaluate train set accuracy

@@ -1,4 +1,5 @@
 /*!
+*  Copyright (c) 2015 by hgaolbb
 * \file mnist.cpp
 * \brief for mnist example
 */
@@ -38,6 +39,9 @@ void ReadMnistLabel(string path, shared_ptr<Blob>& label) {
             (*label)[i](0, 0, (int)temp) = 1;
         }
     }
+    else {
+        cout << "no label file found :-(" << endl;
+    }
 }
 
 void ReadMnistData(string path, shared_ptr<Blob>& image) {
@@ -69,43 +73,14 @@ void ReadMnistData(string path, shared_ptr<Blob>& image) {
             }
         }
     }
+    else {
+        cout << "no data file found :-(" << endl;
+    }
 }
 
-void trainMnist(shared_ptr<Blob>& X, shared_ptr<Blob>& Y) {
-    //NetParam param;
-    //param.batch_size = 100;
-    //param.lr = 0.1;
-    //// momentum=0.9, lr_decay=0.99, lr=0.05
-    //param.momentum = 0.9;
-    //param.num_epochs = 500;
-    ///*! when testing num_gradiets, reg must set to 0 */
-    //param.reg = 0;
-    //param.update = "momentum";
-    //param.use_batch = true;
-    //param.acc_frequence = 1;
-    //param.lr_decay = 0.99;
-    //param.acc_update_lr = true;
-
-    //param.layers.push_back("conv1");
-    ////param.params["conv1"].conv_width = 3;
-    ////param.params["conv1"].conv_height = 3;
-    ////param.params["conv1"].conv_pad = 1;
-    ////param.params["conv1"].conv_stride = 1;
-    ////param.params["conv1"].conv_kernels = 5;
-    //param.params["conv1"].setConvParam(1,1,3,3,5);
-    //param.layers.push_back("relu1");
-    //param.layers.push_back("pool1");
-    //param.params["pool1"].setPoolParam(2, 2, 2);
-    //param.layers.push_back("fc1");
-    //param.params["fc1"].fc_kernels = 10;
-    //param.layers.push_back("softmax");
-    //param.ltypes.push_back("Conv");
-    //param.ltypes.push_back("Relu");
-    //param.ltypes.push_back("Pool");
-    //param.ltypes.push_back("Fc");
-    //param.ltypes.push_back("Softmax");
+void trainMnist(shared_ptr<Blob>& X, shared_ptr<Blob>& Y, string config) {
     NetParam param;
-    param.readNetParam("example/mnist.json");
+    param.readNetParam(config);
 
     shared_ptr<Blob> X_train(new Blob(X->subBlob(0, 9000)));
     shared_ptr<Blob> Y_train(new Blob(Y->subBlob(0, 9000)));
@@ -113,20 +88,28 @@ void trainMnist(shared_ptr<Blob>& X, shared_ptr<Blob>& Y) {
     shared_ptr<Blob> Y_val(new Blob(Y->subBlob(9000, 9100)));
     vector<shared_ptr<Blob>> XX{X_train, X_val};
     vector<shared_ptr<Blob>> YY{Y_train, Y_val};
-    
+
     Net inst;
     inst.initNet(param, XX, YY);
     //inst.testNet(param);
     inst.train(param);
 }
 
-int main()
-{
+void help() {
+    cout << "usage:" << endl
+         << "./mnist [data_path] [label_path] [config_path]" << endl;
+    return;
+}
+int main(int argc, char** argv) {
+    if (argc != 4) {
+        help();
+        return -1;
+    }
     shared_ptr<Blob> images(new Blob(10000,1,28,28));
     shared_ptr<Blob> labels(new Blob(10000,10,1,1,TZEROS));
-    ReadMnistData("example/t10k-images.idx3-ubyte", images);
-    ReadMnistLabel("example/t10k-labels.idx1-ubyte", labels);
-    trainMnist(images, labels);
+    ReadMnistData(argv[1], images);
+    ReadMnistLabel(argv[2], labels);
+    trainMnist(images, labels, argv[3]);
 
     return 0;
 }
