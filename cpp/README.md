@@ -20,3 +20,13 @@ MiniNet has several dependencies:
 cd cpp
 make all
 ```
+
+#Some Example
+
+##overfit small data set result
+
+![](https://github.com/hgaolbb/hgaolbb.github.io/blob/master/resource/pic/mini_net/mcpp-ofs.JPG)
+
+##mnist
+
+![](https://github.com/hgaolbb/hgaolbb.github.io/blob/master/resource/pic/mini_net/mcpp-mnist.JPG)
