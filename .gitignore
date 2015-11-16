@@ -12,3 +12,4 @@ alpha/
 *.o
 mnist
 ofsmall
+*.html
