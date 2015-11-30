@@ -273,6 +273,33 @@ public:
                    int mode = 0);
 };
 
+class PreTrainLayer {
+public:
+    PreTrainLayer() {}
+    ~PreTrainLayer() {}
+
+    /*! \brief norm */
+    static void NormPreLayer(vector<shared_ptr<Blob>>& in,
+                             vector<shared_ptr<Blob>>& out,
+                             vector<shared_ptr<mat>>& mean,
+                             vector<shared_ptr<mat>>& std);
+
+    /*! \brief subtract mean value alone feature */
+    static void SubtractMeanLayer(vector<shared_ptr<Blob>>& in,
+                                  vector<shared_ptr<Blob>>& out,
+                                  vector<shared_ptr<mat>>& mean);
+
+private:
+    static void _NormPreLayer(shared_ptr<Blob>& in,
+                              shared_ptr<Blob>& out,
+                              shared_ptr<mat>& mean,
+                              shared_ptr<mat>& std);
+
+    static void _SubtractMeanLayer(shared_ptr<Blob>& in,
+                              shared_ptr<Blob>& out,
+                              shared_ptr<mat>& mean);
+};
+
 } // namespace mini_net
 
 #endif // MINI_NET_LAYER_

@@ -459,4 +459,100 @@ void SVMLossLayer::go(const vector<shared_ptr<Blob>>& in,
     return;
 }
 
+/*! \brief norm */
+void PreTrainLayer::NormPreLayer(vector<shared_ptr<Blob>>& in,
+                                 vector<shared_ptr<Blob>>& out,
+                                 vector<shared_ptr<mat>>& mean,
+                                 vector<shared_ptr<mat>>& std) {
+    if (!out.empty()) {
+        out.clear();
+    }
+    if (!mean.empty()) {
+        out.clear();
+    }
+    if (!std.empty()) {
+        out.clear();
+    }
+    for (auto item : in) {
+        shared_ptr<Blob> aout;
+        shared_ptr<mat> amean;
+        shared_ptr<mat> astd;
+        _NormPreLayer(item, aout, amean, astd);
+        out.push_back(aout);
+        mean.push_back(amean);
+        std.push_back(astd);
+    }
+    return;
+}
+void PreTrainLayer::_NormPreLayer(shared_ptr<Blob>& in,
+                                  shared_ptr<Blob>& out,
+                                  shared_ptr<mat>& mean,
+                                  shared_ptr<mat>& std) {
+    if (out) {
+        out.reset();
+    }
+    if (mean) {
+        out.reset();
+    }
+    if (std) {
+        out.reset();
+    }
+    int N = in->get_N();
+    mat x = in->reshape();
+    mean.reset(new mat(arma::mean(x)));
+    std.reset(new mat(arma::stddev(x)));
+
+    mat ans = (x - repmat(*mean, N, 1)) / repmat(*std, N, 1);
+    mat2Blob(ans, out, in->size());
+
+    x.print("x\n");
+    //mean->print("mean\n");
+    //std->print("mean\n");
+    //ans.print("ans\n");
+    return;
+}
+
+    /*! \brief subtract mean value alone feature */
+void PreTrainLayer::SubtractMeanLayer(vector<shared_ptr<Blob>>& in,
+                                      vector<shared_ptr<Blob>>& out,
+                                      vector<shared_ptr<mat>>& mean) {
+    if (!out.empty()) {
+        out.clear();
+    }
+    if (!mean.empty()) {
+        out.clear();
+    }
+    for (auto item : in) {
+        shared_ptr<Blob> aout;
+        shared_ptr<mat> amean;
+        _SubtractMeanLayer(item, aout, amean);
+        out.push_back(aout);
+        mean.push_back(amean);
+    }
+    return;
+}
+
+void PreTrainLayer::_SubtractMeanLayer(shared_ptr<Blob>& in,
+                                       shared_ptr<Blob>& out,
+                                       shared_ptr<mat>& mean) {
+    if (out) {
+        out.reset();
+    }
+    if (mean) {
+        out.reset();
+    }
+    int N = in->get_N();
+    mat x = in->reshape();
+    mean.reset(new mat(arma::mean(x)));
+
+    mat ans = x - repmat(*mean, N, 1);
+    mat2Blob(ans, out, in->size());
+
+    //x.print("x\n");
+    //mean->print("mean\n");
+    //ans.print("ans\n");
+
+    return;
+}
+
 } //namespace mini_net

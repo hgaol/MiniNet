@@ -156,7 +156,7 @@ void testConvLayer() {
     shared_ptr<Blob> b(new Blob(2,1,1,1,TRANDN));
     shared_ptr<Blob> dout(new Blob(1,2,5,5,TRANDN));
     Param param;
-    param.setConvParam(1,1);
+    param.setConvParam(1,1,3,3,2);
     vector<shared_ptr<Blob>> in{x, w, b};
     vector<shared_ptr<Blob>> grads(3, shared_ptr<Blob>());
     grads.push_back(shared_ptr<Blob>());
@@ -356,11 +356,21 @@ void testSampleNetTrain() {
     param.ltypes.push_back("Pool");
     param.ltypes.push_back("Fc");
     param.ltypes.push_back("Softmax");
+    vector<shared_ptr<Blob>> in{X, X};
+    vector<shared_ptr<Blob>> out{Y, Y};
 
     Net inst;
-    inst.initNet(param, X, Y);
+    inst.initNet(param, in, out);
     inst.train(param);
     //inst.testNet(param);
+}
+
+void testPreTrainLayer() {
+    shared_ptr<Blob> x(new Blob(10, 1, 1, 8, TRANDN));
+    vector<shared_ptr<Blob>> in{x}, out;
+    vector<shared_ptr<mat>> me, st;
+    //PreTrainLayer::NormPreLayer(in, out, me, st);
+    PreTrainLayer::SubtractMeanLayer(in, out, me);
 }
 
 int main()
@@ -384,7 +394,8 @@ int main()
     //}
     //Blob b(4,2,2,2,TRANDN);
     //b.reshape().print();
-    testSampleNetTrain();
+    //testSampleNetTrain();
+    testPreTrainLayer();
 
     return 0;
 }
