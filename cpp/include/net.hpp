@@ -36,6 +36,8 @@ struct NetParam {
     /*! \brief acc_frequence, how many iterations to check val_acc and train_acc */
     int acc_frequence;
     bool acc_update_lr;
+    /*! \brief pre-train method */
+    std::string pre_train;
 
     vector<std::string> layers;
     vector<std::string> ltypes;
@@ -137,6 +139,12 @@ private:
 
     /*! \brief best model */
     unordered_map<std::string, vector<shared_ptr<Blob>>> best_model_;
+
+    /*! \brief pre-train mean */
+    vector<shared_ptr<cube>> pre_mean;
+
+    /*! \brief pre-train std */
+    vector<shared_ptr<cube>> pre_std;
 
 }; // class Net
 

@@ -182,6 +182,14 @@ Blob compare(Blob& A, Blob& B) {
     return out;
 }
 
+/*! \brief subtract cube from Blob */
+void subtractCube(Blob& A, cube b) {
+    for (int i = 0; i < A.get_N(); ++i) {
+        A[i] -= b;
+    }
+    return;
+}
+
 // convertion
 void mat2Blob(mat& mA, shared_ptr<Blob>& out, int c, int h, int w) {
     int n = mA.n_rows;
@@ -286,6 +294,8 @@ Blob& Blob::operator= (double num) {
 
 vector<int> Blob::size() {
     vector<int> shape{ N_, C_, H_, W_ };
+/*! \brief subtract cube from Blob */
+void subtractCube(Blob& A, cube b);
     return shape;   
 }
 
@@ -309,6 +319,25 @@ double Blob::sum() {
     double ans = 0;
     for (int i = 0; i < N_; ++i) {
         ans += accu(data_[i]);
+    }
+    return ans;
+}
+
+cube Blob::sumElementCube() {
+    assert(!data_.empty());
+    cube ans;
+    for (int i = 0; i < N_; ++i) {
+        ans += data_[i];
+    }
+    return ans;
+}
+
+/*! \brief element mean for each cube */
+cube Blob::meanElementCube() {
+    assert(!data_.empty());
+    cube ans(H_, W_, C_, fill::zeros);
+    for (int i = 0; i < N_; ++i) {
+        ans += data_[i] / (double)N_;
     }
     return ans;
 }

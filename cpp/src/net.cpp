@@ -54,6 +54,9 @@ void NetParam::readNetParam(std::string file) {
                 }
             }
         }
+        if (!value["pre train"].isNull()) {
+            pre_train = value["pre train"].asString();
+        }
     }
 }
 
@@ -183,6 +186,14 @@ void Net::initNet(NetParam& param,
         grads_[layers_[i]] = vector<shared_ptr<Blob>>(3);
         step_cache_[layers_[i]] = vector<shared_ptr<Blob>>(3);
         best_model_[layers_[i]] = vector<shared_ptr<Blob>>(3);
+    }
+    // pre-train
+    if (!param.pre_train.empty()) {
+        vector<shared_ptr<Blob>> pre_train_X;
+        if (param.pre_train == "SubtractMean") {
+            PreTrainLayer::SubtractMeanLayer(X, pre_mean);
+        }
+        // todo add other pre-train methods
     }
     X_train_ = X[0];
     Y_train_ = Y[0];

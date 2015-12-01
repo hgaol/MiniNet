@@ -368,9 +368,12 @@ void testSampleNetTrain() {
 void testPreTrainLayer() {
     shared_ptr<Blob> x(new Blob(10, 1, 1, 8, TRANDN));
     vector<shared_ptr<Blob>> in{x}, out;
-    vector<shared_ptr<mat>> me, st;
+    vector<shared_ptr<cube>> cmean;
     //PreTrainLayer::NormPreLayer(in, out, me, st);
-    PreTrainLayer::SubtractMeanLayer(in, out, me);
+    in[0]->reshape().print("before:\n");
+    PreTrainLayer::SubtractMeanLayer(in, cmean);
+    in[0]->reshape().print("after:\n");
+    cmean[0]->print("cmean:\n");
 }
 
 int main()

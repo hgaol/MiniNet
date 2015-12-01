@@ -55,5 +55,6 @@
             "name": "softmax",
             "type": "Softmax"
         }
-    ]
+    ],
+    "pre train": "SubtractMean"
 }

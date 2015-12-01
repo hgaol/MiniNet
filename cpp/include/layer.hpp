@@ -286,8 +286,7 @@ public:
 
     /*! \brief subtract mean value alone feature */
     static void SubtractMeanLayer(vector<shared_ptr<Blob>>& in,
-                                  vector<shared_ptr<Blob>>& out,
-                                  vector<shared_ptr<mat>>& mean);
+                                  vector<shared_ptr<cube>>& mean);
 
 private:
     static void _NormPreLayer(shared_ptr<Blob>& in,
@@ -296,8 +295,7 @@ private:
                               shared_ptr<mat>& std);
 
     static void _SubtractMeanLayer(shared_ptr<Blob>& in,
-                              shared_ptr<Blob>& out,
-                              shared_ptr<mat>& mean);
+                              shared_ptr<cube>& mean);
 };
 
 } // namespace mini_net

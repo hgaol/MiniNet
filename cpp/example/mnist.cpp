@@ -1,4 +1,5 @@
 /*!
+*  Copyright (c) 2015 by hgaolbb
 * \file mnist.cpp
 * \brief for mnist example
 */

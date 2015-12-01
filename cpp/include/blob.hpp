@@ -16,6 +16,7 @@
 
 using std::vector;
 using std::shared_ptr;
+using std::make_shared;
 using namespace arma;
 
 namespace mini_net {
@@ -54,6 +55,8 @@ Blob sqrt(Blob& A);
 double prob(Blob& Y, Blob& p);
 /*! \brief element compare */
 Blob compare(Blob& A, Blob& B);
+/*! \brief subtract cube from Blob */
+void subtractCube(Blob& A, cube b);
 
 class Blob {
 
@@ -108,33 +111,37 @@ public:
     // return data_
     vector<cube>& get_data();
 
-    //@brief: reshape [N,C,H,W] to [N,C*H*W]
+    /*! \brief reshape [N,C,H,W] to [N,C*H*W] */
     mat reshape();
 
-    /*! Element wise operation */
+    /*! \brief Element wise operation */
     // sum of all element in Blob
     double sum();
-    /*! sum number of element*/
+    /*! \brief element sum of every cube */
+    cube sumElementCube();
+    /*! \brief element mean for each cube */
+    cube meanElementCube();
+    /*! \brief sum number of element*/
     double numElement();
-    /*! element wise operation, if element value is smaller than val, then set it equals to val */
+    /*! \brief element wise operation, if element value is smaller than val, then set it equals to val */
     Blob max(double val);
-    /*! element wise operation, change data_ */
+    /*! \brief element wise operation, change data_ */
     void maxIn(double val);
-    /*! element wise operation, change data_, if e = e < val ? 1 : 0; */
+    /*! \brief element wise operation, change data_, if e = e < val ? 1 : 0; */
     void smallerIn(double val);
-    /*! element wise operation, change data_, if e = e > val ? 1 : 0; */
+    /*! \brief element wise operation, change data_, if e = e > val ? 1 : 0; */
     void biggerIn(double val);
-    /*! element wise operation, return absolute value*/
+    /*! \brief element wise operation, return absolute value*/
     Blob abs();
-    /*! sub Blob, return [lo, hi) */
+    /*! \brief sub Blob, return [lo, hi) */
     Blob subBlob(int lo, int hi);
 
-    /*! find the max value in the blob */
+    /*! \brief find the max value in the blob */
     double maxVal();
     
     Blob pad(int p, double val = 0);
     Blob dePad(int p);
-    /*! print Blob */
+    /*! \brief print Blob */
     void print(std::string s = "");
 
 private:

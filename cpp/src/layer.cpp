@@ -514,39 +514,34 @@ void PreTrainLayer::_NormPreLayer(shared_ptr<Blob>& in,
 
     /*! \brief subtract mean value alone feature */
 void PreTrainLayer::SubtractMeanLayer(vector<shared_ptr<Blob>>& in,
-                                      vector<shared_ptr<Blob>>& out,
-                                      vector<shared_ptr<mat>>& mean) {
-    if (!out.empty()) {
-        out.clear();
-    }
+                                      vector<shared_ptr<cube>>& mean) {
     if (!mean.empty()) {
-        out.clear();
+        mean.clear();
     }
     for (auto item : in) {
         shared_ptr<Blob> aout;
-        shared_ptr<mat> amean;
-        _SubtractMeanLayer(item, aout, amean);
-        out.push_back(aout);
-        mean.push_back(amean);
+        shared_ptr<cube> cmean;
+        _SubtractMeanLayer(item, cmean);
+        mean.push_back(cmean);
     }
     return;
 }
 
 void PreTrainLayer::_SubtractMeanLayer(shared_ptr<Blob>& in,
-                                       shared_ptr<Blob>& out,
-                                       shared_ptr<mat>& mean) {
-    if (out) {
-        out.reset();
-    }
-    if (mean) {
-        out.reset();
+                                       shared_ptr<cube>& cmean) {
+    if (cmean) {
+        cmean.reset();
     }
     int N = in->get_N();
-    mat x = in->reshape();
-    mean.reset(new mat(arma::mean(x)));
+    cmean = make_shared<cube>(in->meanElementCube());
+    subtractCube(*in, *cmean);
+    //{
+    //    mat x = in->reshape();
+    //    mean.reset(new mat(arma::mean(x)));
 
-    mat ans = x - repmat(*mean, N, 1);
-    mat2Blob(ans, out, in->size());
+    //    mat ans = x - repmat(*mean, N, 1);
+    //    mat2Blob(ans, out, in->size());
+    //}
 
     //x.print("x\n");
     //mean->print("mean\n");
